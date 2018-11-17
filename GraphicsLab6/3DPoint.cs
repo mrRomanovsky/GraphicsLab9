@@ -12,6 +12,9 @@ namespace GraphicsLab6
         public double X;
         public double Y;
         public double Z;
+        public double xN;
+        public double yN;
+        public double zN;
         public List<Point3D> Neighbours = new List<Point3D>();
 
         public Point3D(double x, double y, double z)
@@ -52,6 +55,29 @@ namespace GraphicsLab6
             Z = newHomogeneousCoords[2] / divideBy;
             //return new Point3D(newHomogeneousCoords[0] / divideBy, newHomogeneousCoords[1] / divideBy, newHomogeneousCoords[2] / divideBy);
         }
-
+      
+        public void MultiplyByMatrixTask8(List<List<double>> matrix)
+        {
+            var homogeneousCoords = new List<double> { X, Y, Z, 1 };
+            var newHomogeneousCoords = new List<double> { 0, 0, 0, 0 };
+            double col_res = 0;
+            for (int j = 0; j < 4; ++j)
+            {
+                for (int i = 0; i < 4; ++i)
+                    col_res += homogeneousCoords[i] * matrix[i][j]; //matrix[i][j] * homogeneousCoords[j];
+                newHomogeneousCoords[j] = col_res;
+                col_res = 0;
+            }
+            double divideBy = newHomogeneousCoords.Last() == 0 ? 1 : newHomogeneousCoords.Last();
+            xN = newHomogeneousCoords[0] / divideBy;
+            yN = newHomogeneousCoords[1] / divideBy;
+            zN = newHomogeneousCoords[2] / divideBy;
+            //return new Point3D(newHomogeneousCoords[0] / divideBy, newHomogeneousCoords[1] / divideBy, newHomogeneousCoords[2] / divideBy);
+        }
+      
+        internal Point3D Copy()
+        {
+            return new Point3D(X, Y, Z);
+        }
     }
 }

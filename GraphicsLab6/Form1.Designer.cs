@@ -39,8 +39,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.lab8Task1Button = new System.Windows.Forms.Button();
-            this.lab8Task2Button = new System.Windows.Forms.Button();
             this.lab8Task3Button = new System.Windows.Forms.Button();
+            this.checkBoxLab8task2 = new System.Windows.Forms.CheckBox();
             this.lab9Task1Button = new System.Windows.Forms.Button();
             this.lab9Task2Button = new System.Windows.Forms.Button();
             this.lab9Task3Button = new System.Windows.Forms.Button();
@@ -167,15 +167,6 @@
             this.lab8Task1Button.UseVisualStyleBackColor = true;
             this.lab8Task1Button.Click += new System.EventHandler(this.lab8Task1Button_Click);
             // 
-            // lab8Task2Button
-            // 
-            this.lab8Task2Button.Location = new System.Drawing.Point(1093, 234);
-            this.lab8Task2Button.Name = "lab8Task2Button";
-            this.lab8Task2Button.Size = new System.Drawing.Size(75, 23);
-            this.lab8Task2Button.TabIndex = 12;
-            this.lab8Task2Button.Text = "lab8Task2";
-            this.lab8Task2Button.UseVisualStyleBackColor = true;
-            // 
             // lab8Task3Button
             // 
             this.lab8Task3Button.Location = new System.Drawing.Point(1093, 409);
@@ -184,31 +175,43 @@
             this.lab8Task3Button.TabIndex = 13;
             this.lab8Task3Button.Text = "lab8Task3";
             this.lab8Task3Button.UseVisualStyleBackColor = true;
+            this.lab8Task3Button.Click += new System.EventHandler(this.lab8Task3Button_Click);
+            // 
+            // checkBoxLab8task2
+            // 
+            this.checkBoxLab8task2.AutoSize = true;
+            this.checkBoxLab8task2.Location = new System.Drawing.Point(1094, 227);
+            this.checkBoxLab8task2.Name = "checkBoxLab8task2";
+            this.checkBoxLab8task2.Size = new System.Drawing.Size(63, 17);
+            this.checkBoxLab8task2.TabIndex = 14;
+            this.checkBoxLab8task2.Text = "Z-buffer";
+            this.checkBoxLab8task2.UseVisualStyleBackColor = true;
+            this.checkBoxLab8task2.CheckedChanged += new System.EventHandler(this.checkBoxLab8task2_CheckedChanged);
             // 
             // lab9Task1Button
             // 
-            this.lab9Task1Button.Location = new System.Drawing.Point(879, 88);
+            this.lab9Task1Button.Location = new System.Drawing.Point(887, 56);
             this.lab9Task1Button.Name = "lab9Task1Button";
-            this.lab9Task1Button.Size = new System.Drawing.Size(75, 35);
-            this.lab9Task1Button.TabIndex = 14;
+            this.lab9Task1Button.Size = new System.Drawing.Size(75, 52);
+            this.lab9Task1Button.TabIndex = 15;
             this.lab9Task1Button.Text = "lab9Task1";
             this.lab9Task1Button.UseVisualStyleBackColor = true;
             // 
             // lab9Task2Button
             // 
-            this.lab9Task2Button.Location = new System.Drawing.Point(879, 228);
+            this.lab9Task2Button.Location = new System.Drawing.Point(887, 208);
             this.lab9Task2Button.Name = "lab9Task2Button";
-            this.lab9Task2Button.Size = new System.Drawing.Size(75, 35);
-            this.lab9Task2Button.TabIndex = 15;
+            this.lab9Task2Button.Size = new System.Drawing.Size(75, 52);
+            this.lab9Task2Button.TabIndex = 16;
             this.lab9Task2Button.Text = "lab9Task2";
             this.lab9Task2Button.UseVisualStyleBackColor = true;
             // 
             // lab9Task3Button
             // 
-            this.lab9Task3Button.Location = new System.Drawing.Point(879, 381);
+            this.lab9Task3Button.Location = new System.Drawing.Point(887, 380);
             this.lab9Task3Button.Name = "lab9Task3Button";
-            this.lab9Task3Button.Size = new System.Drawing.Size(75, 35);
-            this.lab9Task3Button.TabIndex = 16;
+            this.lab9Task3Button.Size = new System.Drawing.Size(75, 52);
+            this.lab9Task3Button.TabIndex = 17;
             this.lab9Task3Button.Text = "lab9Task3";
             this.lab9Task3Button.UseVisualStyleBackColor = true;
             // 
@@ -220,8 +223,8 @@
             this.Controls.Add(this.lab9Task3Button);
             this.Controls.Add(this.lab9Task2Button);
             this.Controls.Add(this.lab9Task1Button);
+            this.Controls.Add(this.checkBoxLab8task2);
             this.Controls.Add(this.lab8Task3Button);
-            this.Controls.Add(this.lab8Task2Button);
             this.Controls.Add(this.lab8Task1Button);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label2);
@@ -254,8 +257,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button lab8Task1Button;
-        private System.Windows.Forms.Button lab8Task2Button;
         private System.Windows.Forms.Button lab8Task3Button;
+        private System.Windows.Forms.CheckBox checkBoxLab8task2;
         private System.Windows.Forms.Button lab9Task1Button;
         private System.Windows.Forms.Button lab9Task2Button;
         private System.Windows.Forms.Button lab9Task3Button;

@@ -17,15 +17,21 @@ namespace GraphicsLab6
     {
         private string figType = "";
         private string mode = "";
-        private Polyhedron figure;
+
+        public Polyhedron figure;
         private Pen redPen = new Pen(Color.Red);
         private List<System.Windows.Forms.Panel> tasksPanels;
         private Edge polyhrdron2D;
+        public Size pictureBox1Size;
+        private List<Polyhedron> figures;
+
         public Form1()
         {
             InitializeComponent();
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             tasksPanels = new List<Panel>(7);
+            pictureBox1Size = pictureBox1.Size;
+            figures = new List<Polyhedron>();
             InitializeTasksPanels();
         }
 
@@ -48,24 +54,56 @@ namespace GraphicsLab6
                 switch (figType)
                 {
                     case "Тетраэдр":
-                        figure = new Polyhedron(PolyhedronType.Tetrahedron, int.Parse(textBox1.Text));
+                        figures.Add(new Polyhedron(PolyhedronType.Tetrahedron, int.Parse(textBox1.Text)));
                         break;
                     case "Гексаэдр":
-                        figure = new Polyhedron(PolyhedronType.Hexahedron, int.Parse(textBox1.Text));
+                        figures.Add(new Polyhedron(PolyhedronType.Hexahedron, int.Parse(textBox1.Text)));
                         break;
                     case "Октаэдр":
-                        figure = new Polyhedron(PolyhedronType.Octahedron, int.Parse(textBox1.Text));
+                        figures.Add(new Polyhedron(PolyhedronType.Octahedron, int.Parse(textBox1.Text)));
                         break;
                 }
-                DrawPolyhedron(figure, pictureBox1.Size);
+                DrawPolyhedron(figures, pictureBox1.Size);
                 pictureBox1.Invalidate();
             }
         }
 
-        private void DrawPolyhedron(Polyhedron polyhedron, Size size)
+        private void DrawPolyhedron(List<Polyhedron> polyhedrons, Size size)
         {
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            var res = new List<PointF>();
+            if (checkBoxLab8task2.Checked)
+            {
+                ZBuffer("xoy");
+                return;
+            }
+            foreach (var polyhedron in polyhedrons)
+            {
+                var res = new List<PointF>();
+                var x = size.Width / 2 - polyhedron.SegmentLength / 2;
+                var y = size.Height / 2 - polyhedron.SegmentLength / 2;
+                var z = 1.0;
+
+                using (var g = Graphics.FromImage(pictureBox1.Image))
+                {
+                    foreach (var item in polyhedron.vertexes)
+                    {
+                        if (item.Z != 0)
+                            z = item.Z;
+                        var scaledPoint = new PointF((float)(item.X / z + x), (float)(item.Y / z) + y);
+                        foreach (var neighbour in item.Neighbours)
+                        {
+                            var scaledNeighbour = new PointF((float)((float)neighbour.X / (float)z + x), (float)((float)neighbour.Y / (float)z) + y);
+                            g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                        }
+                        res.Add(new PointF((float)(item.X / z + x), (float)(item.Y / z) + y));
+                    }
+                }
+            }
+        }
+
+        public void DrawPolyhedronLab8(Polyhedron polyhedron, Size size)
+        {
+            pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             var x = size.Width / 2 - polyhedron.SegmentLength / 2;
             var y = size.Height / 2 - polyhedron.SegmentLength / 2;
             var z = 1.0;
@@ -74,73 +112,91 @@ namespace GraphicsLab6
             {
                 foreach (var item in polyhedron.vertexes)
                 {
-                    if (item.Z != 0)
-                        z = item.Z;
-                    var scaledPoint = new PointF((float)(item.X / z + x), (float)(item.Y / z) + y);
+                    if (item.zN != 0)
+                        z = item.zN;
+                    var scaledPoint = new PointF((float)(item.xN / z + x), (float)(item.yN / z) + y);
                     foreach (var neighbour in item.Neighbours)
                     {
-                        var scaledNeighbour = new PointF((float)((float)neighbour.X / (float)z + x), (float)((float)neighbour.Y / (float)z) + y);
+                        var scaledNeighbour = new PointF((float)((float)neighbour.xN / (float)z + x), (float)((float)neighbour.yN / (float)z) + y);
                         g.DrawLine(redPen, scaledPoint, scaledNeighbour);
                     }
-                    res.Add(new PointF((float)(item.X / z + x), (float)(item.Y / z) + y));
                 }
             }
         }
 
-        private void DrawPolyhedronYOZ(Polyhedron polyhedron, Size size)
+        private void DrawPolyhedronYOZ(List<Polyhedron> polyhedrons, Size size)
         {
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            var res = new List<PointF>();
-            var y = size.Width / 2 - polyhedron.SegmentLength / 2;
-            var z = size.Height / 2 - polyhedron.SegmentLength / 2;
-            var x = 1.0;
-
-            using (var g = Graphics.FromImage(pictureBox1.Image))
+            if (checkBoxLab8task2.Checked)
             {
-                foreach (var item in polyhedron.vertexes)
+                ZBuffer("yoz");
+                return;
+            }
+            foreach (var polyhedron in polyhedrons)
+            {
+                var res = new List<PointF>();
+                var y = size.Width / 2 - polyhedron.SegmentLength / 2;
+                var z = size.Height / 2 - polyhedron.SegmentLength / 2;
+                var x = 1.0;
+
+                using (var g = Graphics.FromImage(pictureBox1.Image))
                 {
-                    if (item.X != 0)
-                        x = item.X;
-                    var scaledPoint = new PointF((float)(item.Y / x + y), (float)(item.Z / x) + z);
-                    foreach (var neighbour in item.Neighbours)
+                    foreach (var item in polyhedron.vertexes)
                     {
-                        var scaledNeighbour = new PointF((float)((float)neighbour.Y / (float)x + y), (float)((float)neighbour.Z / (float)x) + z);
-                        g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                        if (item.X != 0)
+                            x = item.X;
+                        var scaledPoint = new PointF((float)(item.Y / x + y), (float)(item.Z / x) + z);
+                        foreach (var neighbour in item.Neighbours)
+                        {
+                            var scaledNeighbour = new PointF((float)((float)neighbour.Y / (float)x + y), (float)((float)neighbour.Z / (float)x) + z);
+                            g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                        }
+                        res.Add(new PointF((float)(item.Y / x + y), (float)(item.Z / x) + z));
                     }
-                    res.Add(new PointF((float)(item.Y / x + y), (float)(item.Z / x) + z));
                 }
             }
+
         }
 
-        private void DrawPolyhedronXOZ(Polyhedron polyhedron, Size size)
+        private void DrawPolyhedronXOZ(List<Polyhedron> polyhedrons, Size size)
         {
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            var res = new List<PointF>();
-            var x = size.Width / 2 - polyhedron.SegmentLength / 2;
-            var z = size.Height / 2 - polyhedron.SegmentLength / 2;
-            var y = 1.0;
-
-            using (var g = Graphics.FromImage(pictureBox1.Image))
+            if (checkBoxLab8task2.Checked)
             {
-                foreach (var item in polyhedron.vertexes)
+                ZBuffer("xoz");
+                return;
+            }
+            foreach (var polyhedron in polyhedrons)
+            {
+                var res = new List<PointF>();
+                var x = size.Width / 2 - polyhedron.SegmentLength / 2;
+                var z = size.Height / 2 - polyhedron.SegmentLength / 2;
+                var y = 1.0;
+
+                using (var g = Graphics.FromImage(pictureBox1.Image))
                 {
-                    if (item.Y != 0)
-                        y = item.Y;
-                    var scaledPoint = new PointF((float)(item.X / y + x), (float)(item.Z / y) + z);
-                    foreach (var neighbour in item.Neighbours)
+                    foreach (var item in polyhedron.vertexes)
                     {
-                        var scaledNeighbour = new PointF((float)((float)neighbour.X / (float)y + x), (float)((float)neighbour.Z / (float)y) + z);
-                        g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                        if (item.Y != 0)
+                            y = item.Y;
+                        var scaledPoint = new PointF((float)(item.X / y + x), (float)(item.Z / y) + z);
+                        foreach (var neighbour in item.Neighbours)
+                        {
+                            var scaledNeighbour = new PointF((float)((float)neighbour.X / (float)y + x), (float)((float)neighbour.Z / (float)y) + z);
+                            g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                        }
+                        res.Add(new PointF((float)(item.X / y + x), (float)(item.Z / y) + z));
                     }
-                    res.Add(new PointF((float)(item.X / y + x), (float)(item.Z / y) + z));
                 }
             }
+            pictureBox1.Invalidate();
         }
+
         private void button2_Click(object sender, EventArgs e)
         {
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-
-            figType = "";
+            figures = new List<Polyhedron>();
+           // figType = "";
             mode = "";
         }
 
@@ -180,41 +236,70 @@ namespace GraphicsLab6
                     var c = pictureBox1.Height / 2;
                     var perspective = new List<List<double>> { new List<double> { 1, 0, 0, 0 }, new List<double> { 0, 1, 0, 0 }, new List<double> { 0, 0, 0, -1 / c }, new List<double> { 0, 0, 0, 1 } };
 
-                    foreach (var item in figure.vertexes)
-                        item.MultiplyByMatrix(perspective);
-                    DrawPolyhedron(figure, pictureBox1.Size);
+                    foreach (var figure in figures)
+                    {
+                        foreach (var item in figure.vertexes)
+                            item.MultiplyByMatrix(perspective);
+                    }
+                    DrawPolyhedron(figures, pictureBox1.Size);
                     pictureBox1.Invalidate();
                     break;
                 case "Задание 8":
                     var isometric = new List<List<double>> { new List<double> { Math.Sqrt(0.5), -1 / Math.Sqrt(6), 0, 0 }, new List<double> { 0, Math.Sqrt(2) / Math.Sqrt(3), 0, 0 }, new List<double> { -1 / Math.Sqrt(2), -1 / Math.Sqrt(6), 0, 0 }, new List<double> { 0, 0, 0, 1 } };
 
-                    foreach (var item in figure.vertexes)
-                        item.MultiplyByMatrix(isometric);
-                    DrawPolyhedron(figure, pictureBox1.Size);
+                    foreach (var figure in figures)
+                    {
+                        foreach (var item in figure.vertexes)
+                            item.MultiplyByMatrix(isometric);
+                    }
+                    DrawPolyhedron(figures, pictureBox1.Size);
                     pictureBox1.Invalidate();
                     break;
                 case "Задание 9 XOY":
-                    var ortXOY = new List<List<double>> { new List<double> { 1, 0, 0, 0 }, new List<double> { 0, 1, 0, 0 }, new List<double> { 0, 0, 0, 0}, new List<double> { 0, 0, 0, 1 } };
-
-                    foreach (var item in figure.vertexes)
-                        item.MultiplyByMatrix(ortXOY);
-                    DrawPolyhedron(figure, pictureBox1.Size);
+                    if (checkBoxLab8task2.Checked)
+                    {
+                        ZBuffer("xoy");
+                        return;
+                    }
+                    var ortXOY = new List<List<double>> { new List<double> { 1, 0, 0, 0 }, new List<double> { 0, 1, 0, 0 }, new List<double> { 0, 0, 0, 0 }, new List<double> { 0, 0, 0, 1 } };
+                    foreach (var figure in figures)
+                    {
+                        foreach (var item in figure.vertexes)
+                            item.MultiplyByMatrix(ortXOY);
+                    }
+                    DrawPolyhedron(figures, pictureBox1.Size);
                     pictureBox1.Invalidate();
                     break;
                 case "Задание 9 XOZ":
+                    if (checkBoxLab8task2.Checked)
+                    {
+                        ZBuffer("xoz");
+                        return;
+                    }
                     var ortXOZ = new List<List<double>> { new List<double> { 1, 0, 0, 0 }, new List<double> { 0, 0, 0, 0 }, new List<double> { 0, 0, 1, 0 }, new List<double> { 0, 0, 0, 1 } };
 
-                    foreach (var item in figure.vertexes)
-                        item.MultiplyByMatrix(ortXOZ);
-                    DrawPolyhedronXOZ(figure, pictureBox1.Size);
+                    foreach (var figure in figures)
+                    {
+                        foreach (var item in figure.vertexes)
+                            item.MultiplyByMatrix(ortXOZ);
+                    }
+                    DrawPolyhedronXOZ(figures, pictureBox1.Size);
                     pictureBox1.Invalidate();
                     break;
                 case "Задание 9 YOZ":
+                    if (checkBoxLab8task2.Checked)
+                    {
+                        ZBuffer("yoz");
+                        return;
+                    }
                     var ortYOZ = new List<List<double>> { new List<double> { 0, 0, 0, 0 }, new List<double> { 0, 1, 0, 0 }, new List<double> { 0, 0, 1, 0 }, new List<double> { 0, 0, 0, 1 } };
 
-                    foreach (var item in figure.vertexes)
-                        item.MultiplyByMatrix(ortYOZ);
-                    DrawPolyhedronYOZ(figure, pictureBox1.Size);
+                    foreach (var figure in figures)
+                    {
+                        foreach (var item in figure.vertexes)
+                            item.MultiplyByMatrix(ortYOZ);
+                    }
+                    DrawPolyhedronYOZ(figures, pictureBox1.Size);
                     pictureBox1.Invalidate();
                     break;
                 case "Задание 5":
@@ -237,8 +322,11 @@ namespace GraphicsLab6
                                     parallelUnitVector = new Point3D(0, 0, 1);
                                     break;
                             }
-                            figure.RotateAroundLine(figure.Centre, parallelUnitVector, centreLineDialog.RotationAngleRadians);
-                            DrawPolyhedron(figure, pictureBox1.Size);
+                            foreach (var figure in figures)
+                            {
+                                figure.RotateAroundLine(figure.Centre, parallelUnitVector, centreLineDialog.RotationAngleRadians);
+                            }
+                            DrawPolyhedron(figures, pictureBox1.Size);
                             pictureBox1.Invalidate();
                         }
                     }
@@ -256,8 +344,11 @@ namespace GraphicsLab6
                             parallelVector.X /= vectorLength;
                             parallelVector.Y /= vectorLength;
                             parallelVector.Z /= vectorLength;
-                            figure.RotateAroundLine(point2, parallelVector, lineRotateDialog.AngleRad);
-                            DrawPolyhedron(figure, pictureBox1.Size);
+                            foreach (var figure in figures)
+                            {
+                                figure.RotateAroundLine(point2, parallelVector, lineRotateDialog.AngleRad);
+                            }
+                            DrawPolyhedron(figures, pictureBox1.Size);
                             pictureBox1.Invalidate();
                         }
                     }
@@ -523,45 +614,48 @@ namespace GraphicsLab6
 
         private void reflectionButton_Click(object sender, EventArgs e)
         {
-            var t1 = tasksPanels[1].Controls.Find("task3RefTextBox", false).First().Text.ToLower();
-            var matrix = new double[4, 4];
-            if (t1 == "yox" || t1 == "xoy")
-                matrix = new double[,] {
-                    { 1, 0, 0, 0 },
-                    { 0, 1, 0, 0 },
-                    { 0, 0, -1, 0 },
-                    { 0, 0, 0, 1 } };
-            else if (t1 == "yoz" || t1 == "zoy")
-                matrix = new double[,] {
-                    { -1, 0, 0, 0 },
-                    { 0, 1, 0, 0 },
-                    { 0, 0, 1, 0 },
-                    { 0, 0, 0 , 1 } };
-            else if (t1 == "zox" || t1 == "xoz")
-                matrix = new double[,] {
-                    { 1, 0, 0, 0 },
-                    { 0, -1, 0, 0 },
-                    { 0, 0, 1, 0 },
-                    { 0, 0, 0, 1 } };
-            else
-                return;
-            var matrix2 = new double[figure.CountVertex, 4];
-            for (int i = 0; i < figure.CountVertex; ++i)
+            foreach (var figure in figures)
             {
-                matrix2[i, 0] = figure.vertexes[i].X;
-                matrix2[i, 1] = figure.vertexes[i].Y;
-                matrix2[i, 2] = figure.vertexes[i].Z;
-                matrix2[i, 3] = 1;
-            }
-            var res2 = MultMatrix(matrix2, matrix);
-            for (int i = 0; i < figure.CountVertex; ++i)
-            {
-                figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
-                figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
-                figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
+                var t1 = tasksPanels[1].Controls.Find("task3RefTextBox", false).First().Text.ToLower();
+                var matrix = new double[4, 4];
+                if (t1 == "yox" || t1 == "xoy")
+                    matrix = new double[,] {
+                        { 1, 0, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 0, -1, 0 },
+                        { 0, 0, 0, 1 } };
+                else if (t1 == "yoz" || t1 == "zoy")
+                    matrix = new double[,] {
+                        { -1, 0, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 0 , 1 } };
+                else if (t1 == "zox" || t1 == "xoz")
+                    matrix = new double[,] {
+                        { 1, 0, 0, 0 },
+                        { 0, -1, 0, 0 },
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 0, 1 } };
+                else
+                    return;
+                var matrix2 = new double[figure.CountVertex, 4];
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    matrix2[i, 0] = figure.vertexes[i].X;
+                    matrix2[i, 1] = figure.vertexes[i].Y;
+                    matrix2[i, 2] = figure.vertexes[i].Z;
+                    matrix2[i, 3] = 1;
+                }
+                var res2 = MultMatrix(matrix2, matrix);
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
+                    figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
+                    figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
+                }
             }
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            DrawPolyhedron(figure, pictureBox1.Size);
+            DrawPolyhedron(figures, pictureBox1.Size);
             pictureBox1.Invalidate();
         }
 
@@ -570,7 +664,9 @@ namespace GraphicsLab6
             var t1 = double.Parse(tasksPanels[2].Controls.Find("task4ScaleTextBox", false).First().Text);
             if (t1 == 0)
                 return;
-            var matrix = new double[,] {
+            foreach (var figure in figures)
+            {
+                var matrix = new double[,] {
                     { t1, 0, 0, 0 },
                     { 0, t1, 0, 0 },
                     { 0, 0, t1, 0 },
@@ -578,23 +674,24 @@ namespace GraphicsLab6
 
                   //{figure.Centre.X * t1, figure.Centre.Y * t1, t1, 1 } };
                     { figure.Centre.X - figure.Centre.X * t1, figure.Centre.Y - figure.Centre.Y * t1, figure.Centre.Z - figure.Centre.Z * t1, 1 } };
-            var matrix2 = new double[figure.CountVertex, 4];
-            for (int i = 0; i < figure.CountVertex; ++i)
-            {
-                matrix2[i, 0] = figure.vertexes[i].X;
-                matrix2[i, 1] = figure.vertexes[i].Y;
-                matrix2[i, 2] = figure.vertexes[i].Z;
-                matrix2[i, 3] = 1;
-            }
-            var res2 = MultMatrix(matrix2, matrix);
-            for (int i = 0; i < figure.CountVertex; ++i)
-            {
-                figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
-                figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
-                figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
+                var matrix2 = new double[figure.CountVertex, 4];
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    matrix2[i, 0] = figure.vertexes[i].X;
+                    matrix2[i, 1] = figure.vertexes[i].Y;
+                    matrix2[i, 2] = figure.vertexes[i].Z;
+                    matrix2[i, 3] = 1;
+                }
+                var res2 = MultMatrix(matrix2, matrix);
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
+                    figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
+                    figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
+                }
             }
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            DrawPolyhedron(figure, pictureBox1.Size);
+            DrawPolyhedron(figures, pictureBox1.Size);
             pictureBox1.Invalidate();
         }
 
@@ -690,23 +787,26 @@ namespace GraphicsLab6
                     { 0, 1, 0, 0 },
                     { 0, 0, 1, 0 },
                     { 0, 0, 0, t1 } };
-            var matrix2 = new double[figure.CountVertex, 4];
-            for (int i = 0; i < figure.CountVertex; ++i)
+            foreach (var figure in figures)
             {
-                matrix2[i, 0] = figure.vertexes[i].X;
-                matrix2[i, 1] = figure.vertexes[i].Y;
-                matrix2[i, 2] = figure.vertexes[i].Z;
-                matrix2[i, 3] = 1;
-            }
-            var res2 = MultMatrix(matrix2, matrix);
-            for (int i = 0; i < figure.CountVertex; ++i)
-            {
-                figure.vertexes[i].X = Math.Round(res2[i, 0] / t1, 3);
-                figure.vertexes[i].Y = Math.Round(res2[i, 1] / t1, 3);
-                figure.vertexes[i].Z = Math.Round(res2[i, 2] / t1, 3);
+                var matrix2 = new double[figure.CountVertex, 4];
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    matrix2[i, 0] = figure.vertexes[i].X;
+                    matrix2[i, 1] = figure.vertexes[i].Y;
+                    matrix2[i, 2] = figure.vertexes[i].Z;
+                    matrix2[i, 3] = 1;
+                }
+                var res2 = MultMatrix(matrix2, matrix);
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    figure.vertexes[i].X = Math.Round(res2[i, 0] / t1, 3);
+                    figure.vertexes[i].Y = Math.Round(res2[i, 1] / t1, 3);
+                    figure.vertexes[i].Z = Math.Round(res2[i, 2] / t1, 3);
+                }
             }
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            DrawPolyhedron(figure, pictureBox1.Size);
+            DrawPolyhedron(figures, pictureBox1.Size);
             pictureBox1.Invalidate();
         }
 
@@ -717,23 +817,26 @@ namespace GraphicsLab6
                                      { -Math.Sin(Math.PI * t1 / 180), Math.Cos(Math.PI * t1 / 180), 0, 0 },
                                      { 0, 0, 1, 0 },
                                         {0,0,0,1 } };
-            double[,] matrix2 = new double[figure.CountVertex, 4];
-            for (int i = 0; i < figure.CountVertex; ++i)
+            foreach (var figure in figures)
             {
-                matrix2[i, 0] = figure.vertexes[i].X;
-                matrix2[i, 1] = figure.vertexes[i].Y;
-                matrix2[i, 2] = figure.vertexes[i].Z;
-                matrix2[i, 3] = 1;
-            }
-            var res2 = MultMatrix(matrix2, matrix);
-            for (int i = 0; i < figure.CountVertex; ++i)
-            {
-                figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
-                figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
-                figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
+                double[,] matrix2 = new double[figure.CountVertex, 4];
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    matrix2[i, 0] = figure.vertexes[i].X;
+                    matrix2[i, 1] = figure.vertexes[i].Y;
+                    matrix2[i, 2] = figure.vertexes[i].Z;
+                    matrix2[i, 3] = 1;
+                }
+                var res2 = MultMatrix(matrix2, matrix);
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
+                    figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
+                    figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
+                }
             }
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            DrawPolyhedron(figure, pictureBox1.Size);
+            DrawPolyhedron(figures, pictureBox1.Size);
             pictureBox1.Invalidate();
         }
 
@@ -743,28 +846,33 @@ namespace GraphicsLab6
             var t2 = tasksPanels[0].Controls.Find("task2YTextBox", false).First().Text;
             var t3 = tasksPanels[0].Controls.Find("task2ZTextBox", false).First().Text;
             var matrix = new double[,] { { 1, 0, 0, 0 }, { 0, 1, 0, 0 }, { 0, 0, 1, 0 }, { int.Parse(t1), int.Parse(t2), int.Parse(t3), 1 } };
-            double[,] matrix2 = new double[figure.CountVertex, 4];
-            for (int i = 0; i < figure.CountVertex; ++i)
+            foreach (var figure in figures)
             {
-                matrix2[i, 0] = figure.vertexes[i].X;
-                matrix2[i, 1] = figure.vertexes[i].Y;
-                matrix2[i, 2] = figure.vertexes[i].Z;
-                matrix2[i, 3] = 1;
+                double[,] matrix2 = new double[figure.CountVertex, 4];
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    matrix2[i, 0] = figure.vertexes[i].X;
+                    matrix2[i, 1] = figure.vertexes[i].Y;
+                    matrix2[i, 2] = figure.vertexes[i].Z;
+                    matrix2[i, 3] = 1;
+                }
+                var res2 = MultMatrix(matrix2, matrix);
+                for (int i = 0; i < figure.CountVertex; ++i)
+                {
+                    figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
+                    figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
+                    figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
+                }
             }
-            var res2 = MultMatrix(matrix2, matrix);
-            for (int i = 0; i < figure.CountVertex; ++i)
-            {
-                figure.vertexes[i].X = Math.Round(res2[i, 0], 3);
-                figure.vertexes[i].Y = Math.Round(res2[i, 1], 3);
-                figure.vertexes[i].Z = Math.Round(res2[i, 2], 3);
-            }
+
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            DrawPolyhedron(figure, pictureBox1.Size);
+            DrawPolyhedron(figures, pictureBox1.Size);
             pictureBox1.Invalidate();
         }
 
         #endregion
 
+        #region lab7
         private Point3D VectorProduct(Point3D vector1, Point3D vector2)
         {
             double newX = vector1.Y * vector2.Z - vector1.Z * vector2.Y;
@@ -787,7 +895,7 @@ namespace GraphicsLab6
                     edgesAdjacentPoints[i].Add(ParseAdjacentPoints(adjacentEdgeInfo, i));
             }
             AddAdjacentNeighbours(edgesPoints, edgesAdjacentPoints);
-            figure = BuildPolyhedronFromPoints(edgesPoints);
+            figures.Add(BuildPolyhedronFromPoints(edgesPoints));
         }
 
         private Polyhedron BuildPolyhedronFromPoints(Point3D[,] points)
@@ -805,7 +913,6 @@ namespace GraphicsLab6
             for (int i = 0; i < edgesPoints.GetLength(0); ++i)
                 AddEdgeNeighbours(edgesPoints, i, adjacentPoints[i]);
         }
-
 
         private void AddEdgeNeighbours(Point3D[,] edgesPoints, int edgeNumber, List<AdjacentPoints> adjacentPointsLst)
         {
@@ -859,7 +966,6 @@ namespace GraphicsLab6
             pointsList[edgeNumber, pointsList.GetLength(1) - 1].AddNeighbour(pointsList[edgeNumber, 0]);
         }
 
-
         private Point3D ParsePoint(string pointStr)
         {
             var pointCoords = pointStr.Split(';');
@@ -884,11 +990,415 @@ namespace GraphicsLab6
                 {
                     var filePath = pathForm.FilePath;
                     ReadPolyhedronFromFile(filePath);
-                    DrawPolyhedron(figure, pictureBox1.Size);
+                    DrawPolyhedron(figures, pictureBox1.Size);
                     pictureBox1.Invalidate();
                 }
             }
         }
+        private void lab8Task3Button_Click(object sender, EventArgs e)
+        {
+            var f = new Lab8Task3(this);
+            f.Show();
+        }
+        
+        #endregion
+
+        #region lab8
+        #region task2
+        void Swap(ref int a, ref int b)
+        {
+            int c = a;
+            a = b;
+            b = c;
+        }
+
+        void Swap(ref double a, ref double b)
+        {
+            double c = a;
+            a = b;
+            b = c;
+        }
+
+        void line(int x0, int y0, int x1, int y1, Bitmap image, Color color)
+        {
+            bool steep = false;
+            if (Math.Abs(x0 - x1) < Math.Abs(y0 - y1))
+            { // if the line is steep, we transpose the image
+                Swap(ref x0, ref y0);
+                Swap(ref x1, ref y1);
+                steep = true;
+            }
+            if (x0 > x1)
+            { // make it left-to-right
+                Swap(ref x0, ref x1);
+                Swap(ref y0, ref y1);
+            }
+
+            int dx = x1 - x0;
+            int dy = y1 - y0;
+            int y = y0;
+            int derror = Math.Abs(dy) * 2;
+            int error = 0;
+                
+            for (int x = x0; x <= x1; x++)
+            {
+                if (steep)
+                {
+                    image.SetPixel(y, x, color);
+                }
+                else
+                {
+                    image.SetPixel(x, y, color);
+                }
+                error += derror;
+
+                if (error > dx)
+                {
+                    y += (y1 > y0 ? 1 : -1);
+                    error -= dx * 2;
+                }
+            }
+        }
+
+        //void triangle(PointF t0, PointF t1, PointF t2, Bitmap image, Color color)
+        //{
+        //    if (t0.Y == t1.Y && t0.Y == t2.Y) return; // i dont care about degenerate triangles
+        //                                              // sort the vertices, t0, t1, t2 lower-to-upper (bubblesort yay!)
+        //    if (t0.Y > t1.Y) Swap(t0, t1);
+        //    if (t0.Y > t2.Y) Swap(t0, t2);
+        //    if (t1.Y > t2.Y) Swap(t1, t2);
+        //    int total_height = t2.Y - t0.Y;
+        //    for (int i = 0; i < total_height; i++)
+        //    {
+        //        bool second_half = i > t1.Y - t0.Y || t1.Y == t0.Y;
+        //        int segment_height = second_half ? t2.Y - t1.Y : t1.Y - t0.Y;
+        //        float alpha = (float)i / total_height;
+        //        float beta = (float)(i - (second_half ? t1.Y - t0.Y : 0)) / segment_height; // be careful: with above conditions no division bY zero here
+        //        var A = t0 + (t2 - t0) * alpha;
+        //        float B = second_half ? t1 + (t2 - t1) * beta : t0 + (t1 - t0) * beta;
+        //        if (A.X > B.X) Swap(A, B);
+        //        for (int j = A.X; j <= B.X; j++)
+        //        {
+        //            image.set(j, t0.Y + i, color); // attention, due to int casts t0.Y+i != A.Y
+        //        }
+        //    }
+        //}
+
+        private void SetColorForZBuffer(double[,] zbuffer, double min, double max)
+        {
+            var bitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            double skale;
+            if (max - min == 0)
+                skale = 1;
+            else
+                skale = 255 / (max - min);
+            for (int i = 0; i < pictureBox1.Width; i++)
+            {
+                for (int j = 0; j < pictureBox1.Height; j++)
+                {
+                    if (zbuffer[i, j] == double.MaxValue || zbuffer[i, j] == double.MinValue)
+                        bitmap.SetPixel(i, j, Color.White);
+                    else
+                    {
+                        var zz = zbuffer[i, j];
+                        var c = (int)(skale * (zbuffer[i, j] - min));
+                        //if (c > 0)
+                        //    // c = (int)(c + (50 * skale + c) % 254);
+                        //    c = Math.Min(100 + c, 254);
+                        bitmap.SetPixel(i, j, Color.FromArgb(c,c,c));
+                    }
+                }
+            }
+            pictureBox1.Image = bitmap;
+            pictureBox1.Invalidate();
+        }
+
+        void ZbufferForSquare(string plans, Edge e, double [,] zbufer, int x, int y,ref double min, ref double max)
+        {
+            e.GetEquationPlans();
+            double z0, x1, x2, y1, y2, dz_x, dz_y;
+            dz_y = dz_x = z0 = x1 = x2 = y1 = y2 = 0;
+            var leftUpVertex = e.FindLeftUpVertex(plans);
+            var rightDownVertex = e.FindRightDownVertex(plans);
+            switch (plans)
+            {
+                case "xoy":
+                    z0 = e.Vertexes.First().Z;
+                    x1 = rightDownVertex.X;
+                    x2 = leftUpVertex.X;
+                    y1 = rightDownVertex.Y;
+                    y2 = leftUpVertex.Y;
+                    dz_x = e.A / e.C;
+                    dz_y = e.B / e.C;
+                    break;
+                case "yoz":
+                    z0 = e.Vertexes.First().X;
+                    y1 = rightDownVertex.Z;
+                    y2 = leftUpVertex.Z;
+                    x1 = rightDownVertex.Y;
+                    x2 = leftUpVertex.Y;
+                    dz_y = e.C / e.A;
+                    dz_x = e.B / e.A;
+                    break;
+                case "xoz":
+                    z0 = e.Vertexes.First().Y;
+                    x1 = rightDownVertex.X;
+                    x2 = leftUpVertex.X;
+                    y1 = rightDownVertex.Z;
+                    y2 = leftUpVertex.Z;
+                    dz_x = e.A / e.B;
+                    dz_y = e.C / e.B;
+                    break;
+                default:
+                    break;
+            }
+            for (int i = 0; i < (x1- x2); i++)
+            {
+                z0 -= dz_x;
+                for (int j = 0; j < (y1- y2); j++)
+                {
+                    z0 -= dz_y;
+                    var z_tmp = z0;
+                    if (z0 == 0)
+                        z0 = 1;
+                    if (zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)] < z_tmp)
+                        zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)] = z_tmp;
+                    if (zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)] != double.MinValue
+                        && zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)] < min)
+                        min = zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)];
+                    if (zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)] != double.MaxValue
+                        && zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)] > max)
+                        max = zbufer[(int)((i + (int)x2) / z0 + x), (int)((j + (int)y2) / z0 + y)];
+                    z0 = z_tmp;
+                }
+            }
+        }
+
+        struct Triangle
+        {
+            //public int x1; public int y1; public int x2;
+            //public int y2;
+            //public int x3; public int y3;
+            //public double z1;
+            //public double z2;
+            //public double z3;
+            public Point3D p1;
+            public Point3D p2;
+            public Point3D p3;
+
+
+            public Triangle(string plans, Point3D p1, Point3D p2, Point3D p3)
+            {
+                this.p1 = p1;
+                this.p2 = p2;
+                this.p3 = p3;
+                //if (plans == "xoy")
+                //{
+                //double z = 1;
+                //if (p1.Z != 0)
+                //    z = p1.Z;
+                //x1 = (int)(p1.X / z);
+                //y1 = (int)(p1.Y / z);
+                //z1 = p1.Z;
+                //z = 1;
+                //if (p2.Z != 0)
+                //    z = p2.Z;
+                //x2 = (int)(p2.X / z);
+                //y2 = (int)(p2.Y / z);
+                //z = 1;
+                //z2 = p2.Z;
+                //if (p3.Z != 0)
+                //    z = p3.Z;
+                //z3 = p3.Z;
+                //x3 = (int)(p3.X / z);
+                //y3 = (int)(p3.Y / z);
+                //}
+            }
+
+            internal Triangle Copy()
+            {
+                return new Triangle("xoy", p1.Copy(), p2.Copy(), p3.Copy());
+            }
+        }
+
+        void ZbufferForTriangle(List<Triangle> triangles, double[,] zbufer, int x, int y, ref double min, ref double max)
+        {
+            foreach (var triangle in triangles)
+            {
+                var t = triangle.Copy();
+                if (t.p2.Y < t.p1.Y)
+                {
+                    Swap(ref t.p1.Y, ref t.p2.Y);
+                    Swap(ref t.p1.X, ref t.p2.X);
+                } // точки p1, p2 упорядочены
+                if (t.p3.Y < t.p1.Y)
+                {
+                    Swap(ref t.p1.Y, ref t.p3.Y);
+                    Swap(ref t.p1.X, ref t.p3.X);
+                } // точки p1, p3 упорядочены
+                if (t.p2.Y > t.p3.Y)
+                {
+                    Swap(ref t.p2.Y, ref t.p3.Y);
+                    Swap(ref t.p2.X, ref t.p3.X);
+                }
+
+                double dx13 = 0, dx12 = 0, dx23 = 0;
+                if (t.p3.Y != t.p1.Y)
+                {
+                    dx13 = (t.p3.X - t.p1.X);
+                    dx13 /= t.p3.Y - t.p1.Y;
+                }
+                else
+                    dx13 = 0;
+                if (t.p2.Y != t.p1.Y)
+                {
+                    dx12 = (t.p2.X - t.p1.X);
+                    dx12 /= (t.p2.Y - t.p1.Y);
+                }
+                else
+                    dx12 = 0;
+                if (t.p3.Y != t.p2.Y)
+                {
+                    dx23 = (t.p3.X - t.p2.X);
+                    dx23 /= (t.p3.Y - t.p2.Y);
+                }
+                else
+                    dx23 = 0;
+                var wx1 = t.p1.X;
+                var wx2 = wx1;
+                var _dx13 = dx13;
+
+                if (dx13 > dx12)
+                    Swap(ref dx13, ref dx12);
+
+                var e = new Edge(new List<Point3D> { t.p1, t.p2, t.p3 });
+                e.GetEquationPlans();
+                var z0 = t.p1.Z;
+                var c = 1.0;
+                if (e.C != 0)
+                    c = e.C;
+                var dz_x = (double)e.A / (double)c;
+                var dz_y = (double)e.B / (double)c;
+
+                // растеризуем верхний полутреугольник
+                for (int j = (int)t.p1.Y; j < t.p2.Y; j++)
+                {
+                    z0 -= dz_y;
+                    for (int i = (int)wx1; i <= wx2; i++)
+                    {
+                    z0 -= dz_x;
+                        var z_tmp = z0;
+                        //if (z0 == 0)
+                        //{
+                            z0 = 1;
+                        //}
+                        var zz = zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)];
+                        if (zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] < z0)
+                            zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] = z_tmp;
+                        if (zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] != double.MinValue
+                            && zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] < min)
+                        {
+                            min = zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)];
+                        }
+                        if (zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] != double.MaxValue
+                            && zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] > max)
+                            max = zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)];
+                        z0 = z_tmp;
+                    }
+                    wx1 += dx13;
+                    wx2 += dx12;
+                }
+                if (t.p1.Y == t.p2.Y)
+                {
+                    wx1 = (t.p1.X);
+                    wx2 = (t.p2.X);
+                }
+                if (_dx13 < dx23)
+                {
+                    Swap(ref _dx13, ref dx23);
+                }
+                z0 = t.p2.Z;
+
+                // растеризуем нижний полутреугольник
+                for (int j = (int)t.p2.Y; j <= t.p3.Y; j++)
+                {
+                    z0 -= dz_y;
+                    for (int i = (int)(wx1); i <= (wx2); i++)
+                    {
+                        z0 -= dz_x;
+                        // SetPixel(hdc, j, i, 0);
+                       var z_tmp = z0;
+                        //if (z0 == 0)
+                        //{
+                            z0 = 1;
+                       // }
+                        var zz = zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)];
+                        if (zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] < z_tmp)
+                            zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] = z_tmp;
+                        if (zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] != double.MinValue
+                            && zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] < min)
+                        {
+                            min = zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)];
+                            if (min < -360)
+                                z0 *= 1;
+                        }
+                            if (zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] != double.MaxValue
+                            && zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)] > max)
+                            max = zbufer[(int)((i) / z0 + x), (int)((j) / z0 + y)];
+                        z0 = z_tmp;
+                    }
+                    wx1 += _dx13;
+                    wx2 += dx23;
+                }
+        }
+    }
+
+        private void ZBuffer(string plans)
+        {
+            //pictureBox1.Image = n
+            //pictureBox1.BackColor = Color.White;
+            var min = double.MaxValue;
+            var max = double.MinValue;
+            var zbufer = new double[pictureBox1.Width, pictureBox1.Height];
+            for (int i = 0; i < pictureBox1.Width; i++)
+            {
+                for (int j = 0; j < pictureBox1.Height; j++)
+                {
+                    zbufer[i, j] = double.MinValue;
+                }
+            }
+            foreach (var figure in figures)
+            {
+                var x = pictureBox1.Width / 2 - figure.SegmentLength / 2;
+                var y = pictureBox1.Height / 2 - figure.SegmentLength / 2;
+                int i = 0;
+                foreach (var e in figure.Edges)
+                {
+                    if (figure.Type == PolyhedronType.Hexahedron)
+                        ZbufferForSquare(plans, e, zbufer, x, y, ref min, ref max);
+                    else if (figure.Type == PolyhedronType.Tetrahedron)
+                        ZbufferForTriangle(new List<Triangle> { new Triangle("xoy", e.Vertexes[0], e.Vertexes[1], e.Vertexes[2]) }, zbufer, x, y, ref min, ref max);
+                    
+                    else
+                    {
+                        //var upperVertex = e.Vertexes.OrderBy(p => p.Y).First();
+                        //var downVertex = e.Vertexes.OrderBy(p => -p.Y).First();
+                        //var leftVertex = e.Vertexes.OrderBy(p => p.X).First();
+                        //var rightVertex = e.Vertexes.OrderBy(p => -p.X).First();
+                        ZbufferForTriangle(new List<Triangle> { new Triangle("xoy", e.Vertexes[0], e.Vertexes[1], e.Vertexes[2]) }, zbufer, x, y, ref min, ref max);
+                    }
+                }
+            }
+            SetColorForZBuffer(zbufer, min, max);
+        }
+
+        private void checkBoxLab8task2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+        #endregion
+        #endregion
+
 
         private Point3D VectorFromZeroCoords(Point3D vectorStart, Point3D vectorEnd) =>
             new Point3D(vectorEnd.X - vectorStart.X, vectorEnd.Y - vectorStart.Y, vectorEnd.Z - vectorStart.Z);
@@ -898,23 +1408,42 @@ namespace GraphicsLab6
             using (var vectorDialog = new Lab8Task1Vector())
             {
                 var dialogRes = vectorDialog.ShowDialog();
-                var edgesToRestore = new List<int>();
 
                 if (dialogRes == DialogResult.OK)
                 {
-                    var viewVector = new Point3D(vectorDialog.X, vectorDialog.Y, vectorDialog.Z);
-                    var normalVector = new Point3D();
-                    var edgeVector = new Point3D();
-                    bool shouldBeAdded = true;
-                    int idx = 0;
-                    foreach (var edge in figure.edges)
+                    foreach (var figure in figures)
                     {
-                        var edgeVectors = new List<Point3D>();
-                        normalVector = VectorFromZeroCoords(figure.vertexes[edge[0]], figure.vertexes[edge[1]]);
-                        edgeVectors.Add(normalVector);
-                        for (int i = 1; i < edge.Count - 1; ++i)
+                        var viewVector = new Point3D(vectorDialog.X, vectorDialog.Y, vectorDialog.Z);
+                        var normalVector = new Point3D();
+                        var edgeVector = new Point3D();
+                        bool shouldBeAdded = true;
+                        int idx = 0;
+                        var edgesToRestore = new List<int>();
+                        foreach (var edge in figure.edges)
                         {
-                            edgeVector = VectorFromZeroCoords(figure.vertexes[edge[i]], figure.vertexes[edge[i + 1]]);
+                            var edgeVectors = new List<Point3D>();
+                            normalVector = VectorFromZeroCoords(figure.vertexes[edge[0]], figure.vertexes[edge[1]]);
+                            edgeVectors.Add(normalVector);
+                            for (int i = 1; i < edge.Count - 1; ++i)
+                            {
+                                edgeVector = VectorFromZeroCoords(figure.vertexes[edge[i]], figure.vertexes[edge[i + 1]]);
+                                shouldBeAdded = true;
+                                foreach (var v in edgeVectors)
+                                {
+                                    var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
+                                    if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
+                                    {
+                                        shouldBeAdded = false;
+                                        break;
+                                    }
+                                }
+                                if (shouldBeAdded)
+                                {
+                                    normalVector = VectorProduct(normalVector, edgeVector);
+                                    edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
+                                }
+                            }
+                            edgeVector = VectorFromZeroCoords(figure.vertexes[edge[edge.Count - 1]], figure.vertexes[edge[0]]);
                             shouldBeAdded = true;
                             foreach (var v in edgeVectors)
                             {
@@ -930,31 +1459,15 @@ namespace GraphicsLab6
                                 normalVector = VectorProduct(normalVector, edgeVector);
                                 edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
                             }
+                            normalVector = FixNormal(edge, figure, normalVector);
+                            if (!RemoveEdgeIfAngleIsBig(edge, figure, normalVector, viewVector))
+                                edgesToRestore.Add(idx);
+                            ++idx;
                         }
-                        edgeVector = VectorFromZeroCoords(figure.vertexes[edge[edge.Count - 1]], figure.vertexes[edge[0]]);
-                        shouldBeAdded = true;
-                        foreach (var v in edgeVectors)
-                        {
-                            var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
-                            if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
-                            {
-                                shouldBeAdded = false;
-                                break;
-                            }
-                        }
-                        if (shouldBeAdded)
-                        {
-                            normalVector = VectorProduct(normalVector, edgeVector);
-                            edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
-                        }
-                        normalVector = FixNormal(edge, figure, normalVector);
-                        if (!RemoveEdgeIfAngleIsBig(edge, figure, normalVector, viewVector))
-                            edgesToRestore.Add(idx);
-                        ++idx;
+                        foreach (var edgeIdx in edgesToRestore)
+                            RestoreEdge(figure.edges[edgeIdx], figure);
                     }
                 }
-                foreach (var edgeIdx in edgesToRestore)
-                    RestoreEdge(figure.edges[edgeIdx], figure);
             }
         }
 

@@ -66,6 +66,18 @@
     <Compile Include="Lab7Task2.Designer.cs">
       <DependentUpon>Lab7Task2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Lab8Task3.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Lab8Task3.Designer.cs">
+      <DependentUpon>Lab8Task3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Lab8Task2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Lab8Task2.Designer.cs">
+      <DependentUpon>Lab8Task2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Lab8Task1Vector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -93,6 +105,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Lab7Task1Path.resx">
       <DependentUpon>Lab7Task1Path.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab8Task3.resx">
+      <DependentUpon>Lab8Task3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab8Task2.resx">
+      <DependentUpon>Lab8Task2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Lab8Task1Vector.resx">
       <DependentUpon>Lab8Task1Vector.cs</DependentUpon>
