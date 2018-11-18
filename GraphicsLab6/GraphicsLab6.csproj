@@ -84,6 +84,12 @@
     <Compile Include="Lab8Task1Vector.Designer.cs">
       <DependentUpon>Lab8Task1Vector.cs</DependentUpon>
     </Compile>
+    <Compile Include="Lab9Task3.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Lab9Task3.Designer.cs">
+      <DependentUpon>Lab9Task3.cs</DependentUpon>
+    </Compile>
     <Compile Include="LineThroughCenter.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,6 +120,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Lab8Task1Vector.resx">
       <DependentUpon>Lab8Task1Vector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab9Task3.resx">
+      <DependentUpon>Lab9Task3.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LineThroughCenter.resx">
       <DependentUpon>LineThroughCenter.cs</DependentUpon>

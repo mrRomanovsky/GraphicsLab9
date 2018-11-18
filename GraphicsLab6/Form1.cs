@@ -101,6 +101,38 @@ namespace GraphicsLab6
             }
         }
 
+        public void getFigureFromChild(Polyhedron p)
+        {
+            figure = p;
+            figures = new List<Polyhedron>();
+            figures.Add(p);
+        }
+
+        public void DrawPolyhedron(Polyhedron polyhedron, Size size)
+        {
+            pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            var res = new List<PointF>();
+            var x = size.Width / 2 - polyhedron.SegmentLength / 2;
+            var y = size.Height / 2 - polyhedron.SegmentLength / 2;
+            var z = 1.0;
+            var MinY = double.MaxValue;
+            var MaxY = double.MinValue;
+            using (var g = Graphics.FromImage(pictureBox1.Image))
+            {
+                foreach (var item in polyhedron.vertexes)
+                {
+                    if (item.Z != 0)
+                        z = item.Z;
+                    var scaledPoint = new PointF((float)(item.X / z + x), (float)(item.Y / z) + y);
+                    foreach (var neighbour in item.Neighbours)
+                    {
+                       var scaledNeighbour = new PointF((float)neighbour.X / (float)z + x, (float)neighbour.Y / (float)z + y);
+                       g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                    }
+
+                }
+            }
+        }
         public void DrawPolyhedronLab8(Polyhedron polyhedron, Size size)
         {
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
@@ -1550,6 +1582,12 @@ C = A + (B - A) * (len / full_len)
             double v2Length = Math.Sqrt(vector2.X * vector2.X + vector2.Y * vector2.Y + vector2.Z * vector2.Z);
             double cos = (vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z) / (v1Length * v2Length);
             return Math.Acos(cos);
+        }
+
+        private void lab9Task3Button_Click(object sender, EventArgs e)
+        {
+            var f = new Lab9Task3(this);
+            f.Show();
         }
     }
 }

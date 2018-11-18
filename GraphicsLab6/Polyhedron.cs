@@ -74,6 +74,11 @@ namespace GraphicsLab6
             
         }
 
+        public Polyhedron()
+        {
+            vertexes = new List<Point3D>();
+        }
+
         //angle - в радианах!
         public void RotateAroundLine(Point3D linePoint, Point3D parallelVector, double angle)
         {
