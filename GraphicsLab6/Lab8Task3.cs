@@ -40,10 +40,10 @@ namespace GraphicsLab6
 
             cam.UpDownLeftRight(ud, lr);
 
-            foreach (var x in parent.figure.vertexes)
+            foreach (var x in parent.figures[0].vertexes)
                 x.MultiplyByMatrixTask8(cam.projection);
 
-            parent.DrawPolyhedronLab8(parent.figure, parent.pictureBox1Size);
+            parent.DrawPolyhedronLab8(parent.figures[0], parent.pictureBox1Size);
         }
 
 
@@ -53,10 +53,10 @@ namespace GraphicsLab6
             while (!stop)
             {
                 cam.UpDownLeftRight(2, 2);
-                foreach (var x in parent.figure.vertexes)
+                foreach (var x in parent.figures[0].vertexes)
                     x.MultiplyByMatrixTask8(cam.projection);
 
-                parent.DrawPolyhedronLab8(parent.figure, parent.pictureBox1Size);
+                parent.DrawPolyhedronLab8(parent.figures[0], parent.pictureBox1Size);
                 await Task.Delay(50);
             }
         }
