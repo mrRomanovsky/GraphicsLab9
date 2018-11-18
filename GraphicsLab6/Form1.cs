@@ -23,7 +23,7 @@ namespace GraphicsLab6
         private List<System.Windows.Forms.Panel> tasksPanels;
         private Edge polyhrdron2D;
         public Size pictureBox1Size;
-        private List<Polyhedron> figures;
+        public List<Polyhedron> figures;
 
         public Form1()
         {
