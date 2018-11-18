@@ -36,14 +36,6 @@ namespace GraphicsLab6
             return res;
         }
 
-        private void make_curve(ref List<Point3D> l, double x, double y0, double y1, double step)
-        {
-            for (double y = y0; y <= y1; y += step)
-            {
-                Point3D p = new Point3D(x, y, x*x + y*y);
-                l.Add(p);
-            }
-        }
         private double currentFunction(double x, double y)
         {
             if (checkBoxXXYY.Checked)
@@ -57,13 +49,7 @@ namespace GraphicsLab6
 
         }
 
-        Dictionary<double, double> YMin = new Dictionary<double, double>();
-        Dictionary<double, double> YMax = new Dictionary<double, double>();
-         private Point pointOnLine(Point p1, Point p2, int x)
-        {
-            double y = p1.X != p2.X ? ((x - p1.X) * (p2.Y- p1.Y) * 1.0) / (p2.X - p1.X) + p1.Y : (p2.Y + p1.Y) / 2;
-            return new Point(x, (int)Math.Round(y));
-        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             Dictionary<double, List<Point>> res = new Dictionary<double, List<Point>>();
@@ -103,10 +89,7 @@ namespace GraphicsLab6
                     //if (ind4.Count > 0)
                     //    vertex.AddNeighbour(ind4.First());
             }
-
-
             var isometric = new List<List<double>> { new List<double> { Math.Sqrt(0.5), -1 / Math.Sqrt(6), 0, 0 }, new List<double> { 0, Math.Sqrt(2) / Math.Sqrt(3), 0, 0 }, new List<double> { -1 / Math.Sqrt(2), -1 / Math.Sqrt(6), 0, 0 }, new List<double> { 0, 0, 0, 1 } };
-
             foreach (var item in figure.vertexes)
                 item.MultiplyByMatrix(isometric);
             figure.Centre = new Point3D(0, 0, 0);
