@@ -196,6 +196,7 @@
             this.lab9Task1Button.TabIndex = 15;
             this.lab9Task1Button.Text = "lab9Task1";
             this.lab9Task1Button.UseVisualStyleBackColor = true;
+            this.lab9Task1Button.Click += new System.EventHandler(this.lab9Task1Button_Click);
             // 
             // lab9Task2Button
             // 

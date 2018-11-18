@@ -251,5 +251,107 @@ namespace GraphicsLab6
             };
         }
         #endregion
+
+        //edge connections: 0 <-> 1 <-> 2 <-> .. <-> n - 1 <-> 0
+        public List<PointF> Rasterize(List<PointF> edge)
+        {
+            var minMaxYs = GetMinMaxY(edge);
+            int minY = (int)Math.Floor(minMaxYs.Item1);
+            int maxY = (int)Math.Ceiling(minMaxYs.Item2);
+            var segments = GetSegment2Ds(edge);
+            var intersectionPoints = new List<PointF>();
+            for (int horizY = minY; horizY <= maxY; ++horizY)
+            {
+                foreach (var seg in segments)
+                {
+                    var intersectionPoint = GetSegmentHorizIntersection(seg, (float)(horizY + 0.5));
+                    if (intersectionPoint.X > -1000)
+                        intersectionPoints.Add(intersectionPoint);
+                }
+            }
+
+
+            intersectionPoints = intersectionPoints.OrderByDescending(p => p.Y).ThenBy(p => p.X).ToList();
+            var resultingPixels = new List<PointF>();
+            float lastY = intersectionPoints[0].Y;
+            int lastYStart = 0;
+            for (int i = 1; i < intersectionPoints.Count; ++i)
+            {
+                if (intersectionPoints[i].Y != lastY)
+                {
+                    ProcessIntersections(intersectionPoints, lastYStart, i, resultingPixels);
+                    lastYStart = i;
+                    lastY = intersectionPoints[i].Y;
+                }
+            }
+
+            return resultingPixels;
+        }
+
+        private void ProcessIntersections(List<PointF> intersectionPoints, int startIdx, int endIdx, List<PointF> resultingPixels)
+        {
+            int currIdx = startIdx;
+            int y = (int)Math.Floor(intersectionPoints[startIdx].Y);
+            while (currIdx < endIdx)
+            {
+                var point1 = intersectionPoints[currIdx];
+                var point2 = intersectionPoints[currIdx + 1];
+                int x1 = (int)Math.Floor(point1.X);
+                int x2 = (int)Math.Floor(point2.X);
+                int x = x1;
+                while (x1 <= x + 0.5 && x + 0.5 <= x2)
+                {
+                    resultingPixels.Add(new PointF(x, y));
+                    ++x;
+                }
+                currIdx += 2;
+            } //x1 <= x + 0.5 <= x2
+        }
+
+        private Tuple<double, double> GetMinMaxY(List<PointF> edge)
+        {
+            double minY = int.MaxValue;
+            double maxY = int.MinValue;
+            foreach (var v in edge)
+            {
+                if (v.Y < minY)
+                    minY = v.Y;
+                if (v.Y > maxY)
+                    maxY = v.Y;
+            }
+            return new Tuple<double, double>(minY, maxY);
+        }
+
+        private List<Segment2D> GetSegment2Ds(List<PointF> edge)
+        {
+            var result = new List<Segment2D>();
+            for (int i = 0; i < edge.Count - 1; ++i)
+                result.Add(new Segment2D(edge[i], edge[i + 1]));
+            result.Add(new Segment2D(edge[edge.Count - 1], edge[0]));
+            return result;
+        }
+
+        private PointF GetSegmentHorizIntersection(Segment2D segment, float horizY)
+        {
+            PointF minYPoint;
+            PointF maxYPoint;
+            if (segment.a.Y < segment.b.Y)
+            {
+                minYPoint = segment.a;
+                maxYPoint = segment.b;
+            }
+            else
+            {
+                minYPoint = segment.b;
+                maxYPoint = segment.a;
+            }
+            if (minYPoint.Y <= horizY && maxYPoint.Y > horizY)
+            {
+                var newPointX = (maxYPoint.X - minYPoint.X) * (horizY - minYPoint.Y) / (maxYPoint.Y - minYPoint.Y) + minYPoint.X;
+                var newPointY = horizY;
+                return new PointF(newPointX, newPointY);
+            }
+            return new PointF(-float.MaxValue, -float.MaxValue);
+        }
     }
 }

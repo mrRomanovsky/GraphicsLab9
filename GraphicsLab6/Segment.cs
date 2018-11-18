@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace GraphicsLab6
 {
-    class Segment2D
+    public class Segment2D
     {
-        readonly PointF a;
-        readonly PointF b;
+        public PointF a;
+        public PointF b;
 
         public Segment2D(PointF a, PointF b)
         {

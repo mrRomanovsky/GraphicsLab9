@@ -1421,44 +1421,7 @@ namespace GraphicsLab6
                         var edgesToRestore = new List<int>();
                         foreach (var edge in figure.edges)
                         {
-                            var edgeVectors = new List<Point3D>();
-                            normalVector = VectorFromZeroCoords(figure.vertexes[edge[0]], figure.vertexes[edge[1]]);
-                            edgeVectors.Add(normalVector);
-                            for (int i = 1; i < edge.Count - 1; ++i)
-                            {
-                                edgeVector = VectorFromZeroCoords(figure.vertexes[edge[i]], figure.vertexes[edge[i + 1]]);
-                                shouldBeAdded = true;
-                                foreach (var v in edgeVectors)
-                                {
-                                    var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
-                                    if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
-                                    {
-                                        shouldBeAdded = false;
-                                        break;
-                                    }
-                                }
-                                if (shouldBeAdded)
-                                {
-                                    normalVector = VectorProduct(normalVector, edgeVector);
-                                    edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
-                                }
-                            }
-                            edgeVector = VectorFromZeroCoords(figure.vertexes[edge[edge.Count - 1]], figure.vertexes[edge[0]]);
-                            shouldBeAdded = true;
-                            foreach (var v in edgeVectors)
-                            {
-                                var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
-                                if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
-                                {
-                                    shouldBeAdded = false;
-                                    break;
-                                }
-                            }
-                            if (shouldBeAdded)
-                            {
-                                normalVector = VectorProduct(normalVector, edgeVector);
-                                edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
-                            }
+                            normalVector = GetNormal(edge, figure);
                             normalVector = FixNormal(edge, figure, normalVector);
                             if (!RemoveEdgeIfAngleIsBig(edge, figure, normalVector, viewVector))
                                 edgesToRestore.Add(idx);
@@ -1469,6 +1432,52 @@ namespace GraphicsLab6
                     }
                 }
             }
+        }
+
+        private Point3D GetNormal(List<int> edge, Polyhedron polyhedron)
+        {
+            var edgeVectors = new List<Point3D>();
+            var normalVector = VectorFromZeroCoords(polyhedron.vertexes[edge[0]], polyhedron.vertexes[edge[1]]);
+            var edgeVector = new Point3D();
+            edgeVectors.Add(normalVector);
+            bool shouldBeAdded = true; ;
+            for (int i = 1; i < edge.Count - 1; ++i)
+            {
+                edgeVector = VectorFromZeroCoords(polyhedron.vertexes[edge[i]], polyhedron.vertexes[edge[i + 1]]);
+                shouldBeAdded = true;
+                foreach (var v in edgeVectors)
+                {
+                    var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
+                    if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
+                    {
+                        shouldBeAdded = false;
+                        break;
+                    }
+                }
+                if (shouldBeAdded)
+                {
+                    normalVector = VectorProduct(normalVector, edgeVector);
+                    edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
+                }
+            }
+            edgeVector = VectorFromZeroCoords(polyhedron.vertexes[edge[edge.Count - 1]], polyhedron.vertexes[edge[0]]);
+            shouldBeAdded = true;
+            foreach (var v in edgeVectors)
+            {
+                var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
+                if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
+                {
+                    shouldBeAdded = false;
+                    break;
+                }
+            }
+            if (shouldBeAdded)
+            {
+                normalVector = VectorProduct(normalVector, edgeVector);
+                edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
+            }
+            normalVector = FixNormal(edge, polyhedron, normalVector);
+            return normalVector;
         }
 
         private Point3D FixNormal(List<int> edge, Polyhedron polyhedron, Point3D normal)
@@ -1550,6 +1559,34 @@ C = A + (B - A) * (len / full_len)
             double v2Length = Math.Sqrt(vector2.X * vector2.X + vector2.Y * vector2.Y + vector2.Z * vector2.Z);
             double cos = (vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z) / (v1Length * v2Length);
             return Math.Acos(cos);
+        }
+
+        private void lab9Task1Button_Click(object sender, EventArgs e)
+        {
+            /*for (int i = 0; i < pictureBox1.Image.Width / 3; ++i)
+                for (int j = 0; j < pictureBox1.Image.Height / 3; ++j)
+                    ((Bitmap)pictureBox1.Image).SetPixel(i, j, Color.Green);*/
+            var triangle = new List<PointF>()
+            {
+                new PointF(this.pictureBox1.Width / 2, this.pictureBox1.Height / 2),
+                new PointF(this.pictureBox1.Width / 2, this.pictureBox1.Height / 2 + 70),
+                new PointF(this.pictureBox1.Width / 2 + 70, this.pictureBox1.Height / 2 + 70),
+                new PointF(this.pictureBox1.Width / 2 + 70, this.pictureBox1.Height / 2)
+                //new PointF(this.pictureBox1.Width / 2 + 70, this.pictureBox1.Height / 2 + 70),
+                //new PointF(this.pictureBox1.Width / 2 + 140, this.pictureBox1.Height / 2 - 70)
+            };
+            var polyhedron = new Polyhedron(PolyhedronType.Tetrahedron, 50);
+            foreach (var pixelCoords in polyhedron.Rasterize(triangle))
+            {
+                ((Bitmap)pictureBox1.Image).SetPixel((int)pixelCoords.X, (int)pixelCoords.Y, Color.Green);
+            }
+            //((Bitmap)pictureBox1.Image).SetPixel(currentX, currentY, Color.FromArgb(r, g, b));
+            pictureBox1.Refresh();
+            /*using (var g = Graphics.FromImage(pictureBox1.Image))
+            {
+                g.Draw
+            }*/
+            //pictureBox1.Image.Set
         }
     }
 }
