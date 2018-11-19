@@ -42,7 +42,7 @@ namespace GraphicsLab6
         private double currentFunction(double x, double y)
         {
             if (checkBoxXXYY.Checked)
-                return x * x + y * y;
+                return Math.Cos(x * x + y * y) / (x * x + y * y + 1);
             else if (checkBoxSinCos.Checked)
                 return Math.Sin(x) * Math.Cos(y);
             else if (checkBoxAbs.Checked)
@@ -67,9 +67,14 @@ namespace GraphicsLab6
 
             double step = double.Parse(textBoxStep.Text);
 
+            Dictionary<double, double> maxY = new Dictionary<double, double>();
+            Dictionary<double, double> minY = new Dictionary<double, double>();
+
             //Build polyhedron
             for (double i = x1; i <= x2; i += step)
             {
+                maxY[i] = double.MinValue;
+                minY[i] = double.MaxValue;
                 for (double j = y1; j <= y2; j += step)
                 {
                     var p = new Point3D(i, currentFunction(i, j), j);
@@ -86,9 +91,8 @@ namespace GraphicsLab6
 
             var groupedVertexes = figure.vertexes.GroupBy(x => x.Z);
             var newFigure = new Polyhedron();
-            var maxY = double.MinValue;
-            var minY = double.MaxValue;
             var counts = 1;
+            var preSize = 0;
             foreach (var Zs in groupedVertexes)
             {
                 foreach (var xs in Zs)
@@ -98,17 +102,33 @@ namespace GraphicsLab6
 
                 for (int i = counts; i < newFigure.vertexes.Count - 1; i++)
                 {
-                    if(newFigure.vertexes[i].Y > maxY) { 
+                    if(newFigure.vertexes[i].Y > maxY[newFigure.vertexes[i].X]) { 
                         newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i - 1]);
                         newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i + 1]);
-                    }else if(newFigure.vertexes[i].Y < minY)
+
+                        if (preSize != 0 && checkBox1.Checked)
+                        {
+                            newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i - preSize]);
+                            newFigure.vertexes[i - preSize].AddNeighbour(newFigure.vertexes[i + 1]);
+                        }
+
+                        maxY[newFigure.vertexes[i].X] = newFigure.vertexes[i].Y;
+                    }
+                    else if(newFigure.vertexes[i].Y < minY[newFigure.vertexes[i].X])
                     {
                         newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i - 1]);
                         newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i + 1]);
+                        if (preSize != 0 && checkBox1.Checked)
+                        {
+                            newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i - preSize]);
+                            newFigure.vertexes[i - preSize].AddNeighbour(newFigure.vertexes[i + 1]);
+                        }
+
+                        minY[newFigure.vertexes[i].X] = newFigure.vertexes[i].Y;
                     }
                 }
-                maxY = newFigure.vertexes.Max(xe => xe.Y);
-                minY = newFigure.vertexes.Min(xe => xe.Y);
+
+                preSize = Zs.Count();
                 counts = newFigure.vertexes.Count();
             }
 

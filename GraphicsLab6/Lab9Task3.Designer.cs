@@ -50,8 +50,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // button1
@@ -103,7 +102,7 @@
             this.textBoxStep.Name = "textBoxStep";
             this.textBoxStep.Size = new System.Drawing.Size(100, 20);
             this.textBoxStep.TabIndex = 5;
-            this.textBoxStep.Text = "0,2";
+            this.textBoxStep.Text = "0,05";
             // 
             // label1
             // 
@@ -156,9 +155,9 @@
             this.checkBoxXXYY.AutoSize = true;
             this.checkBoxXXYY.Location = new System.Drawing.Point(12, 92);
             this.checkBoxXXYY.Name = "checkBoxXXYY";
-            this.checkBoxXXYY.Size = new System.Drawing.Size(71, 17);
+            this.checkBoxXXYY.Size = new System.Drawing.Size(79, 17);
             this.checkBoxXXYY.TabIndex = 11;
-            this.checkBoxXXYY.Text = "X*X +Y*Y";
+            this.checkBoxXXYY.Text = "Cos(r)/(r+1)";
             this.checkBoxXXYY.UseVisualStyleBackColor = true;
             // 
             // checkBoxSinCos
@@ -255,20 +254,22 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
-            // pictureBox1
+            // checkBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(580, 20);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(422, 296);
-            this.pictureBox1.TabIndex = 22;
-            this.pictureBox1.TabStop = false;
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(390, 175);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(133, 17);
+            this.checkBox1.TabIndex = 22;
+            this.checkBox1.Text = "Отображение сеткой";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // Lab9Task3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1020, 332);
-            this.Controls.Add(this.pictureBox1);
+            this.ClientSize = new System.Drawing.Size(535, 332);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -294,7 +295,6 @@
             this.Name = "Lab9Task3";
             this.Text = "Lab9Task3";
             this.Load += new System.EventHandler(this.Lab9Task3_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -324,6 +324,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
