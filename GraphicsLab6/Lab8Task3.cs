@@ -76,7 +76,7 @@ namespace GraphicsLab6
         public double leftRight;
         public Camera(Point3D coords)
         {
-            viewVector = new Point3D(coords.X, coords.Y, coords.Z);
+            viewVector = new Point3D(coords.xN, coords.yN, coords.zN);
             upDown = 0;
             leftRight = 0;
             this.coords = coords;
@@ -123,12 +123,12 @@ namespace GraphicsLab6
             projection = MultMatrix(MultMatrix(d2, d1), d3);
 
             var temp = MultMatrix(projection, new List < List<double> > {
-                new List<double> { coords.X },
-                new List<double>  { coords.Y },
-                new List<double>  { coords.Z },
+                new List<double> { coords.xN },
+                new List<double>  { coords.yN },
+                new List<double>  { coords.zN },
                 new List<double>  { 1 } });
             coords = new Point3D(temp[0][0], temp[1][0], temp[2][0]);
-            viewVector = new Point3D(coords.X, coords.Y , coords.Z );
+            viewVector = new Point3D(coords.xN , coords.yN , coords.zN );
         }
 
         public void UpDownLeftRight(double ud, double lr)

@@ -14,6 +14,8 @@ namespace GraphicsLab6
     {
         private Form1 parent;
         private Polyhedron figure;
+        Camera cam;
+        private bool stop;
         public Lab9Task3()
         {
             InitializeComponent();
@@ -24,6 +26,7 @@ namespace GraphicsLab6
             this.parent = parent;
             InitializeComponent();
             figure = new Polyhedron();
+            cam = new Camera(new Point3D(0, 0, 1));
         }
 
         public double[,] matrix_multiplication(double[,] m1, double[,] m2)
@@ -69,36 +72,53 @@ namespace GraphicsLab6
             {
                 for (double j = y1; j <= y2; j += step)
                 {
-                    var p = new Point3D(i, j, currentFunction(i, j));
+                    var p = new Point3D(i, currentFunction(i, j), j);
                     figure.vertexes.Add(p);
-                }   
+                }
             }
 
-            foreach (var vertex in figure.vertexes)
+            figure.vertexes.Sort(delegate (Point3D a, Point3D b)
             {
-                    var ind1 = figure.vertexes.Where(x => (x.X == vertex.X + step) && (x.Y == vertex.Y)).ToList();
-                    if (ind1.Count > 0)
-                        vertex.AddNeighbour(ind1.First());
-                    var ind2 = figure.vertexes.Where(x => (x.X == vertex.X - step) && (x.Y == vertex.Y)).ToList();
-                    if (ind2.Count > 0)
-                        vertex.AddNeighbour(ind2.First());
-                    //var ind3 = figure.vertexes.Where(y => (y.X == vertex.X) && (y.Y == vertex.Y + step)).ToList();
-                    //if (ind3.Count > 0)
-                    //    vertex.AddNeighbour(ind3.First());
-                    //var ind4 = figure.vertexes.Where(y => (y.X == vertex.X) && (y.Y == vertex.Y - step)).ToList();
-                    //if (ind4.Count > 0)
-                    //    vertex.AddNeighbour(ind4.First());
-            }
-            var isometric = new List<List<double>> { new List<double> { Math.Sqrt(0.5), -1 / Math.Sqrt(6), 0, 0 }, new List<double> { 0, Math.Sqrt(2) / Math.Sqrt(3), 0, 0 }, new List<double> { -1 / Math.Sqrt(2), -1 / Math.Sqrt(6), 0, 0 }, new List<double> { 0, 0, 0, 1 } };
-            foreach (var item in figure.vertexes)
-                item.MultiplyByMatrix(isometric);
-            figure.Centre = new Point3D(0, 0, 0);
-            figure.CountVertex = figure.vertexes.Count();
-            parent.DrawPolyhedron(figure, parent.pictureBox1Size);
-            parent.getFigureFromChild(figure);
-        }
+                int xdiff = a.Z.CompareTo(b.Z);
+                if (xdiff != 0) return xdiff;
+                else return a.X.CompareTo(b.X);
+            });
 
-        private void Lab9Task3_Load(object sender, EventArgs e)
+            var groupedVertexes = figure.vertexes.GroupBy(x => x.Z);
+            var newFigure = new Polyhedron();
+            var maxY = double.MinValue;
+            var minY = double.MaxValue;
+            var counts = 1;
+            foreach (var Zs in groupedVertexes)
+            {
+                foreach (var xs in Zs)
+                {
+                    newFigure.vertexes.Add(xs);
+                }
+
+                for (int i = counts; i < newFigure.vertexes.Count - 1; i++)
+                {
+                    if(newFigure.vertexes[i].Y > maxY) { 
+                        newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i - 1]);
+                        newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i + 1]);
+                    }else if(newFigure.vertexes[i].Y < minY)
+                    {
+                        newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i - 1]);
+                        newFigure.vertexes[i].AddNeighbour(newFigure.vertexes[i + 1]);
+                    }
+                }
+                maxY = newFigure.vertexes.Max(xe => xe.Y);
+                minY = newFigure.vertexes.Min(xe => xe.Y);
+                counts = newFigure.vertexes.Count();
+            }
+
+            newFigure.Centre = new Point3D(0, 0, 0);
+            newFigure.CountVertex = newFigure.vertexes.Count();
+            parent.DrawPolyhedron(newFigure, parent.pictureBox1Size);
+            parent.getFigureFromChild(newFigure);
+        }
+    
+            private void Lab9Task3_Load(object sender, EventArgs e)
         {
 
         }
@@ -112,5 +132,41 @@ namespace GraphicsLab6
         {
 
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            double ud = double.Parse(textBox1.Text);
+            double lr = double.Parse(textBox2.Text);
+
+            cam.UpDownLeftRight(ud, lr);
+
+            foreach (var x in figure.vertexes)
+                x.MultiplyByMatrixTask8(cam.projection);
+
+            parent.DrawPolyhedronLab8(figure, parent.pictureBox1Size);
+            parent.getFigureFromChild(figure);
+        }
+
+        private async void button3_Click(object sender, EventArgs e)
+        {
+            stop = false;
+            while (!stop)
+            {
+                cam.UpDownLeftRight(2, 2);
+                foreach (var x in figure.vertexes)
+                    x.MultiplyByMatrixTask8(cam.projection);
+
+                parent.DrawPolyhedronLab8(figure, parent.pictureBox1Size);
+                parent.getFigureFromChild(figure);
+                await Task.Delay(50);
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            stop = true;
+        }
     }
+
+
 }

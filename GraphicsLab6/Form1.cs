@@ -89,6 +89,8 @@ namespace GraphicsLab6
                     {
                         if (item.Z != 0)
                             z = item.Z;
+                        if (z < 0.001)
+                            z = 1.0;
                         var scaledPoint = new PointF((float)(item.X / z + x), (float)(item.Y / z) + y);
                         foreach (var neighbour in item.Neighbours)
                         {
@@ -115,21 +117,20 @@ namespace GraphicsLab6
             var x = size.Width / 2 - polyhedron.SegmentLength / 2;
             var y = size.Height / 2 - polyhedron.SegmentLength / 2;
             var z = 1.0;
-            var MinY = double.MaxValue;
-            var MaxY = double.MinValue;
             using (var g = Graphics.FromImage(pictureBox1.Image))
             {
                 foreach (var item in polyhedron.vertexes)
                 {
                     if (item.Z != 0)
                         z = item.Z;
+                    if (z < 0.001)
+                        z = 1.0;
                     var scaledPoint = new PointF((float)(item.X / z + x), (float)(item.Y / z) + y);
                     foreach (var neighbour in item.Neighbours)
                     {
-                       var scaledNeighbour = new PointF((float)neighbour.X / (float)z + x, (float)neighbour.Y / (float)z + y);
-                       g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                        var scaledNeighbour = new PointF((float)(neighbour.X / z) + x, (float)(neighbour.Y/ z) + y);
+                        g.DrawLine(redPen, scaledPoint, scaledNeighbour);
                     }
-
                 }
             }
         }
@@ -156,7 +157,7 @@ namespace GraphicsLab6
             }
         }
 
-        private void DrawPolyhedronYOZ(List<Polyhedron> polyhedrons, Size size)
+        public void DrawPolyhedronYOZ(List<Polyhedron> polyhedrons, Size size)
         {
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             if (checkBoxLab8task2.Checked)
@@ -221,6 +222,32 @@ namespace GraphicsLab6
                     }
                 }
             }
+            pictureBox1.Invalidate();
+        }
+
+        private void DrawPolyhedronXOZ(Polyhedron polyhedrons, Size size)
+        {
+            pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                var res = new List<PointF>();
+                var x = size.Width / 2 ;
+                var z = size.Height / 2;
+                var y = 1.0;
+
+                using (var g = Graphics.FromImage(pictureBox1.Image))
+                {
+                    foreach (var item in polyhedrons.vertexes)
+                    {
+                        if (item.Y != 0)
+                            y = item.Y;
+                        var scaledPoint = new PointF((float)(item.X / y + x), (float)(item.Z / y) + z);
+                        foreach (var neighbour in item.Neighbours)
+                        {
+                            var scaledNeighbour = new PointF((float)((float)neighbour.X / (float)y + x), (float)((float)neighbour.Z / (float)y) + z);
+                            g.DrawLine(redPen, scaledPoint, scaledNeighbour);
+                        }
+                        res.Add(new PointF((float)(item.X / y + x), (float)(item.Z / y) + z));
+                    }
+                }
             pictureBox1.Invalidate();
         }
 
