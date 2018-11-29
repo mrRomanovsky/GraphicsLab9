@@ -27,7 +27,7 @@ namespace GraphicsLab6
             ["Dodecahedron"] = Tuple.Create<int, int>(5, 3)
         };
     }
-    
+
 
     public class Polyhedron
     {
@@ -71,7 +71,7 @@ namespace GraphicsLab6
 
         public Polyhedron(Polyhedron figure)
         {
-            
+
         }
 
         //angle - в радианах!
@@ -146,12 +146,13 @@ namespace GraphicsLab6
                 (vertexes[0].Y + vertexes[1].Y + vertexes[2].Y + vertexes[3].Y) / 4,
                 (vertexes[0].Z + vertexes[1].Z + vertexes[2].Z + vertexes[3].Z) / 4
                 );
+            var k = 0;
             Edges = new List<Edge>
             {
-                new Edge(new List<Point3D>{vertexes[0], vertexes[1], vertexes[2]}),
-                new Edge(new List<Point3D>{vertexes[0], vertexes[1], vertexes[3]}),
-                new Edge(new List<Point3D>{vertexes[0], vertexes[2], vertexes[3]}),
-                new Edge(new List<Point3D>{vertexes[1], vertexes[3], vertexes[2] })
+                new Edge(k++,new List<Point3D>{vertexes[0], vertexes[1], vertexes[2]}),
+                new Edge(k++,new List<Point3D>{vertexes[0], vertexes[1], vertexes[3]}),
+                new Edge(k++,new List<Point3D>{vertexes[0], vertexes[2], vertexes[3]}),
+                new Edge(k++,new List<Point3D>{vertexes[1], vertexes[3], vertexes[2] })
             };
         }
         #endregion
@@ -200,14 +201,15 @@ namespace GraphicsLab6
             }
 
             Centre = new Point3D(len / 2, len / 2, len / 2);
+            var k = 0;
             Edges = new List<Edge>
             {
-                new Edge(new List<Point3D>{vertexes[0], vertexes[1], vertexes[3], vertexes[2]}),
-                new Edge(new List<Point3D>{vertexes[0], vertexes[1], vertexes[5], vertexes[4]}),
-                new Edge(new List<Point3D>{vertexes[0], vertexes[4], vertexes[6], vertexes[2]}),
-                new Edge(new List<Point3D>{vertexes[2], vertexes[6], vertexes[7], vertexes[3]}),
-                new Edge(new List<Point3D>{vertexes[1], vertexes[5], vertexes[7], vertexes[3]}),
-                new Edge(new List<Point3D>{vertexes[5], vertexes[4], vertexes[6], vertexes[7]}),
+                new Edge(k++,new List<Point3D>{vertexes[0], vertexes[1], vertexes[3], vertexes[2]}),
+                new Edge(k++,new List<Point3D>{vertexes[0], vertexes[1], vertexes[5], vertexes[4]}),
+                new Edge(k++,new List<Point3D>{vertexes[0], vertexes[4], vertexes[6], vertexes[2]}),
+                new Edge(k++,new List<Point3D>{vertexes[2], vertexes[6], vertexes[7], vertexes[3]}),
+                new Edge(k++,new List<Point3D>{vertexes[1], vertexes[5], vertexes[7], vertexes[3]}),
+                new Edge(k++,new List<Point3D>{vertexes[5], vertexes[4], vertexes[6], vertexes[7]}),
             };
         }
         #endregion
@@ -233,21 +235,22 @@ namespace GraphicsLab6
             vertexes.Add(new Point3D(0, 0, -shift));
             foreach (var vertex1 in vertexes)
                 foreach (var vertex2 in vertexes)
-                    if (   vertex1.X == 0 && vertex2.X != 0
+                    if (vertex1.X == 0 && vertex2.X != 0
                         || vertex1.Y == 0 && vertex2.Y != 0
-                        || vertex1.Z == 0 && vertex2.Z != 0  )
+                        || vertex1.Z == 0 && vertex2.Z != 0)
                         vertex1.AddNeighbour(vertex2);
             Centre = new Point3D(0, 0, 0);
+            var i = 0;
             Edges = new List<Edge>
             {
-                new Edge(new List<Point3D>{vertexes[0], vertexes[2], vertexes[5]}),
-                new Edge(new List<Point3D>{vertexes[0], vertexes[3], vertexes[5]}),
-                new Edge(new List<Point3D>{vertexes[3], vertexes[1], vertexes[5]}),
-                new Edge(new List<Point3D>{vertexes[1], vertexes[2], vertexes[5]}),
-                new Edge(new List<Point3D>{vertexes[0], vertexes[2], vertexes[4]}),
-                new Edge(new List<Point3D>{vertexes[0], vertexes[3], vertexes[4]}),
-                new Edge(new List<Point3D>{vertexes[3], vertexes[1], vertexes[4]}),
-                new Edge(new List<Point3D>{vertexes[1], vertexes[2], vertexes[4]}),
+                new Edge(i++,new List<Point3D>{vertexes[0], vertexes[2], vertexes[5]}),
+                new Edge(i++, new List<Point3D>{vertexes[0], vertexes[3], vertexes[5]}),
+                new Edge(i++,new List<Point3D>{vertexes[3], vertexes[1], vertexes[5]}),
+                new Edge(i++,new List<Point3D>{vertexes[1], vertexes[2], vertexes[5]}),
+                new Edge(i++,new List<Point3D>{vertexes[0], vertexes[2], vertexes[4]}),
+                new Edge(i++,new List<Point3D>{vertexes[0], vertexes[3], vertexes[4]}),
+                new Edge(i++,new List<Point3D>{vertexes[3], vertexes[1], vertexes[4]}),
+                new Edge(i++,new List<Point3D>{vertexes[1], vertexes[2], vertexes[4]}),
             };
         }
         #endregion
@@ -352,6 +355,38 @@ namespace GraphicsLab6
                 return new PointF(newPointX, newPointY);
             }
             return new PointF(-float.MaxValue, -float.MaxValue);
+        }
+
+        public Dictionary<Point3D, List<List<int>>> GetDictionaryAdgacentEdgeForvertexes()
+        {
+            var res = new Dictionary<Point3D, List<List<int>>>();
+            foreach (var edge in edges)
+            {
+                foreach (var vertex in edge)
+                {
+                    if (!res.ContainsKey(vertexes[vertex]))
+                        res[vertexes[vertex]] = new List<List<int>> { edge };
+                    else
+                        res[vertexes[vertex]].Add(edge);
+                }
+            }
+            return res;
+        }
+
+        public Dictionary<Point3D, List<Edge>> GetDictionaryAdgacentEdgeForvertexesClassEdge()
+        {
+            var res = new Dictionary<Point3D, List<Edge>>();
+            foreach (var edge in Edges)
+            {
+                foreach (var vertex in edge.Vertexes)
+                {
+                    if (!res.ContainsKey(vertex))
+                        res[vertex] = new List<Edge> { edge };
+                    else
+                        res[vertex].Add(edge);
+                }
+            }
+            return res;
         }
     }
 }

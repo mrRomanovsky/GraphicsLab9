@@ -41,6 +41,7 @@ namespace GraphicsLab6
             Initialize3TaskPanel();
             Initialize4TaskPanel();
         }
+
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             figType = (string)((ListBox)sender).SelectedItem;
@@ -68,12 +69,20 @@ namespace GraphicsLab6
             }
         }
 
-        private void DrawPolyhedron(List<Polyhedron> polyhedrons, Size size)
+        private void DrawPolyhedron(List<Polyhedron> polyhedrons, Size size, string str = "xoy")
         {
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             if (checkBoxLab8task2.Checked)
             {
                 ZBuffer("xoy");
+                return;
+            }
+            if (checkBox9_1.Checked)
+            {
+                var color = listBox9_1_color.SelectedIndex;
+                var lightSource = new Point3D(int.Parse(textBox9_1_X.Text), int.Parse(textBox9_1_Y.Text), int.Parse(textBox9_1_Z.Text));
+                Lab9Task1 = new Lab9Task1(this, lightSource, color, figures, pictureBox1);
+                Lab9Task1.GouraudShading(str);
                 return;
             }
             foreach (var polyhedron in polyhedrons)
@@ -132,6 +141,14 @@ namespace GraphicsLab6
                 ZBuffer("yoz");
                 return;
             }
+            if (checkBox9_1.Checked)
+            {
+                var color = listBox9_1_color.SelectedIndex;
+                var lightSource = new Point3D(int.Parse(textBox9_1_X.Text), int.Parse(textBox9_1_Y.Text), int.Parse(textBox9_1_Z.Text));
+                Lab9Task1 = new Lab9Task1(this, lightSource, color, figures, pictureBox1);
+                Lab9Task1.GouraudShading("yoz");
+                return;
+            }
             foreach (var polyhedron in polyhedrons)
             {
                 var res = new List<PointF>();
@@ -164,6 +181,14 @@ namespace GraphicsLab6
             if (checkBoxLab8task2.Checked)
             {
                 ZBuffer("xoz");
+                return;
+            }
+            if (checkBox9_1.Checked)
+            {
+                var color = listBox9_1_color.SelectedIndex;
+                var lightSource = new Point3D(int.Parse(textBox9_1_X.Text), int.Parse(textBox9_1_Y.Text), int.Parse(textBox9_1_Z.Text));
+                Lab9Task1 = new Lab9Task1(this, lightSource, color, figures, pictureBox1);
+                Lab9Task1.GouraudShading("xoz");
                 return;
             }
             foreach (var polyhedron in polyhedrons)
@@ -252,7 +277,7 @@ namespace GraphicsLab6
                         foreach (var item in figure.vertexes)
                             item.MultiplyByMatrix(isometric);
                     }
-                    DrawPolyhedron(figures, pictureBox1.Size);
+                    DrawPolyhedron(figures, pictureBox1.Size, "8");
                     pictureBox1.Invalidate();
                     break;
                 case "Задание 9 XOY":
@@ -1000,19 +1025,115 @@ namespace GraphicsLab6
             var f = new Lab8Task3(this);
             f.Show();
         }
-        
+
         #endregion
 
         #region lab8
+        private Point3D VectorFromZeroCoords(Point3D vectorStart, Point3D vectorEnd) =>
+           new Point3D(vectorEnd.X - vectorStart.X, vectorEnd.Y - vectorStart.Y, vectorEnd.Z - vectorStart.Z);
+
+        private void lab8Task1Button_Click(object sender, EventArgs e)
+        {
+            using (var vectorDialog = new Lab8Task1Vector())
+            {
+                var dialogRes = vectorDialog.ShowDialog();
+
+                if (dialogRes == DialogResult.OK)
+                {
+                    foreach (var figure in figures)
+                    {
+                        var viewVector = new Point3D(vectorDialog.X, vectorDialog.Y, vectorDialog.Z);
+                        var normalVector = new Point3D();
+                        var edgeVector = new Point3D();
+                        bool shouldBeAdded = true;
+                        int idx = 0;
+                        var edgesToRestore = new List<int>();
+                        foreach (var edge in figure.edges)
+                        {
+                            normalVector = GetNormal(edge, figure);
+                            normalVector = FixNormal(edge, figure, normalVector);
+                            if (!RemoveEdgeIfAngleIsBig(edge, figure, normalVector, viewVector))
+                                edgesToRestore.Add(idx);
+                            ++idx;
+                        }
+                        foreach (var edgeIdx in edgesToRestore)
+                            RestoreEdge(figure.edges[edgeIdx], figure);
+                    }
+                }
+            }
+        }
+
+        public Point3D GetNormal(List<int> edge, Polyhedron polyhedron)
+        {
+            var edgeVectors = new List<Point3D>();
+            var normalVector = VectorFromZeroCoords(polyhedron.vertexes[edge[0]], polyhedron.vertexes[edge[1]]);
+            var edgeVector = new Point3D();
+            edgeVectors.Add(normalVector);
+            bool shouldBeAdded = true; ;
+            for (int i = 1; i < edge.Count - 1; ++i)
+            {
+                edgeVector = VectorFromZeroCoords(polyhedron.vertexes[edge[i]], polyhedron.vertexes[edge[i + 1]]);
+                shouldBeAdded = true;
+                foreach (var v in edgeVectors)
+                {
+                    var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
+                    if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
+                    {
+                        shouldBeAdded = false;
+                        break;
+                    }
+                }
+                if (shouldBeAdded)
+                {
+                    normalVector = VectorProduct(normalVector, edgeVector);
+                    edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
+                }
+            }
+            edgeVector = VectorFromZeroCoords(polyhedron.vertexes[edge[edge.Count - 1]], polyhedron.vertexes[edge[0]]);
+            shouldBeAdded = true;
+            foreach (var v in edgeVectors)
+            {
+                var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
+                if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
+                {
+                    shouldBeAdded = false;
+                    break;
+                }
+            }
+            if (shouldBeAdded)
+            {
+                normalVector = VectorProduct(normalVector, edgeVector);
+                edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
+            }
+            normalVector = FixNormal(edge, polyhedron, normalVector);
+            return normalVector;
+        }
+
+        private Point3D FixNormal(List<int> edge, Polyhedron polyhedron, Point3D normal)
+        {
+            var newNormalStart = polyhedron.vertexes[edge[0]];
+            var newNormalEnd = new Point3D(normal.X + newNormalStart.X, normal.Y + newNormalStart.Y, normal.Z + newNormalStart.Z);
+            var normalDx = newNormalEnd.X - newNormalStart.X;
+            var normalDy = newNormalEnd.Y - newNormalStart.Y;
+            var normalDz = newNormalEnd.Z - newNormalStart.Z;
+            var normalLength = Math.Sqrt(normalDx * normalDx + normalDy * normalDy + normalDz * normalDz);
+            var stepLength = 1.0 / normalLength;
+            var nextNormalPoint = new Point3D(newNormalStart.X + normalDx * stepLength, newNormalStart.Y + normalDy * stepLength,
+                newNormalStart.Z + normalDz * stepLength);
+            if (SecondPointIsCloser(polyhedron.Centre, newNormalStart, nextNormalPoint))
+                return new Point3D(-1 * normal.X, -1 * normal.Y, -1 * normal.Z);
+            return normal;
+        }
+
         #region task2
-        void Swap(ref int a, ref int b)
+       public void Swap(ref int a, ref int b)
         {
             int c = a;
             a = b;
             b = c;
         }
 
-        void Swap(ref double a, ref double b)
+       public void Swap(ref double a, ref double b)
         {
             double c = a;
             a = b;
@@ -1397,104 +1518,9 @@ namespace GraphicsLab6
 
         }
         #endregion
+
         #endregion
 
-
-        private Point3D VectorFromZeroCoords(Point3D vectorStart, Point3D vectorEnd) =>
-            new Point3D(vectorEnd.X - vectorStart.X, vectorEnd.Y - vectorStart.Y, vectorEnd.Z - vectorStart.Z);
-
-        private void lab8Task1Button_Click(object sender, EventArgs e)
-        {
-            using (var vectorDialog = new Lab8Task1Vector())
-            {
-                var dialogRes = vectorDialog.ShowDialog();
-
-                if (dialogRes == DialogResult.OK)
-                {
-                    foreach (var figure in figures)
-                    {
-                        var viewVector = new Point3D(vectorDialog.X, vectorDialog.Y, vectorDialog.Z);
-                        var normalVector = new Point3D();
-                        var edgeVector = new Point3D();
-                        bool shouldBeAdded = true;
-                        int idx = 0;
-                        var edgesToRestore = new List<int>();
-                        foreach (var edge in figure.edges)
-                        {
-                            normalVector = GetNormal(edge, figure);
-                            normalVector = FixNormal(edge, figure, normalVector);
-                            if (!RemoveEdgeIfAngleIsBig(edge, figure, normalVector, viewVector))
-                                edgesToRestore.Add(idx);
-                            ++idx;
-                        }
-                        foreach (var edgeIdx in edgesToRestore)
-                            RestoreEdge(figure.edges[edgeIdx], figure);
-                    }
-                }
-            }
-        }
-
-        private Point3D GetNormal(List<int> edge, Polyhedron polyhedron)
-        {
-            var edgeVectors = new List<Point3D>();
-            var normalVector = VectorFromZeroCoords(polyhedron.vertexes[edge[0]], polyhedron.vertexes[edge[1]]);
-            var edgeVector = new Point3D();
-            edgeVectors.Add(normalVector);
-            bool shouldBeAdded = true; ;
-            for (int i = 1; i < edge.Count - 1; ++i)
-            {
-                edgeVector = VectorFromZeroCoords(polyhedron.vertexes[edge[i]], polyhedron.vertexes[edge[i + 1]]);
-                shouldBeAdded = true;
-                foreach (var v in edgeVectors)
-                {
-                    var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
-                    if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
-                    {
-                        shouldBeAdded = false;
-                        break;
-                    }
-                }
-                if (shouldBeAdded)
-                {
-                    normalVector = VectorProduct(normalVector, edgeVector);
-                    edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
-                }
-            }
-            edgeVector = VectorFromZeroCoords(polyhedron.vertexes[edge[edge.Count - 1]], polyhedron.vertexes[edge[0]]);
-            shouldBeAdded = true;
-            foreach (var v in edgeVectors)
-            {
-                var oldAngle = VectorAngle(v, edgeVector) * 180 / Math.PI;
-                if (Math.Abs(oldAngle - 180) < 0.1 || Math.Abs(oldAngle - 180) < 0.1)
-                {
-                    shouldBeAdded = false;
-                    break;
-                }
-            }
-            if (shouldBeAdded)
-            {
-                normalVector = VectorProduct(normalVector, edgeVector);
-                edgeVectors.Add(new Point3D(edgeVector.X, edgeVector.Y, edgeVector.Z));
-            }
-            normalVector = FixNormal(edge, polyhedron, normalVector);
-            return normalVector;
-        }
-
-        private Point3D FixNormal(List<int> edge, Polyhedron polyhedron, Point3D normal)
-        {
-            var newNormalStart = polyhedron.vertexes[edge[0]];
-            var newNormalEnd = new Point3D(normal.X + newNormalStart.X, normal.Y + newNormalStart.Y, normal.Z + newNormalStart.Z);
-            var normalDx = newNormalEnd.X - newNormalStart.X;
-            var normalDy = newNormalEnd.Y - newNormalStart.Y;
-            var normalDz = newNormalEnd.Z - newNormalStart.Z;
-            var normalLength = Math.Sqrt(normalDx * normalDx + normalDy * normalDy + normalDz * normalDz);
-            var stepLength = 1.0 / normalLength;
-            var nextNormalPoint = new Point3D(newNormalStart.X + normalDx * stepLength, newNormalStart.Y + normalDy * stepLength,
-                newNormalStart.Z + normalDz * stepLength);
-            if (SecondPointIsCloser(polyhedron.Centre, newNormalStart, nextNormalPoint))
-                return new Point3D(-1 * normal.X, -1 * normal.Y, -1 * normal.Z);
-            return normal;
-        }
 
         private bool SecondPointIsCloser(Point3D point1, Point3D point2, Point3D point3)
         {
@@ -1561,7 +1587,8 @@ C = A + (B - A) * (len / full_len)
             return Math.Acos(cos);
         }
 
-        private void lab9Task1Button_Click(object sender, EventArgs e)
+        #region Lab9
+        private void lab9Task2Button_Click(object sender, EventArgs e)
         {
             /*for (int i = 0; i < pictureBox1.Image.Width / 3; ++i)
                 for (int j = 0; j < pictureBox1.Image.Height / 3; ++j)
@@ -1587,6 +1614,24 @@ C = A + (B - A) * (len / full_len)
                 g.Draw
             }*/
             //pictureBox1.Image.Set
+        }
+
+        Lab9Task1 Lab9Task1;
+        private void checkBox9_1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!(sender as CheckBox).Checked)
+                return;
+            var color = listBox9_1_color.SelectedIndex;
+            var lightSource = new Point3D(int.Parse(textBox9_1_X.Text), int.Parse(textBox9_1_Y.Text), int.Parse(textBox9_1_Z.Text));
+            Lab9Task1 = new Lab9Task1(this, lightSource, color, figures, pictureBox1);
+        }
+        #endregion
+
+        private void listBox9_1_color_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var color = listBox9_1_color.SelectedIndex;
+            var lightSource = new Point3D(int.Parse(textBox9_1_X.Text), int.Parse(textBox9_1_Y.Text), int.Parse(textBox9_1_Z.Text));
+            Lab9Task1 = new Lab9Task1(this, lightSource, color, figures, pictureBox1);
         }
     }
 }

@@ -84,6 +84,7 @@
     <Compile Include="Lab8Task1Vector.Designer.cs">
       <DependentUpon>Lab8Task1Vector.cs</DependentUpon>
     </Compile>
+    <Compile Include="Lab9Task1.cs" />
     <Compile Include="LineThroughCenter.cs">
       <SubType>Form</SubType>
     </Compile>

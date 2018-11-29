@@ -41,9 +41,14 @@
             this.lab8Task1Button = new System.Windows.Forms.Button();
             this.lab8Task3Button = new System.Windows.Forms.Button();
             this.checkBoxLab8task2 = new System.Windows.Forms.CheckBox();
-            this.lab9Task1Button = new System.Windows.Forms.Button();
             this.lab9Task2Button = new System.Windows.Forms.Button();
             this.lab9Task3Button = new System.Windows.Forms.Button();
+            this.listBox9_1_color = new System.Windows.Forms.ListBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox9_1_X = new System.Windows.Forms.TextBox();
+            this.textBox9_1_Y = new System.Windows.Forms.TextBox();
+            this.textBox9_1_Z = new System.Windows.Forms.TextBox();
+            this.checkBox9_1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -188,16 +193,6 @@
             this.checkBoxLab8task2.UseVisualStyleBackColor = true;
             this.checkBoxLab8task2.CheckedChanged += new System.EventHandler(this.checkBoxLab8task2_CheckedChanged);
             // 
-            // lab9Task1Button
-            // 
-            this.lab9Task1Button.Location = new System.Drawing.Point(887, 56);
-            this.lab9Task1Button.Name = "lab9Task1Button";
-            this.lab9Task1Button.Size = new System.Drawing.Size(75, 52);
-            this.lab9Task1Button.TabIndex = 15;
-            this.lab9Task1Button.Text = "lab9Task1";
-            this.lab9Task1Button.UseVisualStyleBackColor = true;
-            this.lab9Task1Button.Click += new System.EventHandler(this.lab9Task1Button_Click);
-            // 
             // lab9Task2Button
             // 
             this.lab9Task2Button.Location = new System.Drawing.Point(887, 208);
@@ -206,6 +201,7 @@
             this.lab9Task2Button.TabIndex = 16;
             this.lab9Task2Button.Text = "lab9Task2";
             this.lab9Task2Button.UseVisualStyleBackColor = true;
+            this.lab9Task2Button.Click += new System.EventHandler(this.lab9Task2Button_Click);
             // 
             // lab9Task3Button
             // 
@@ -216,14 +212,80 @@
             this.lab9Task3Button.Text = "lab9Task3";
             this.lab9Task3Button.UseVisualStyleBackColor = true;
             // 
+            // listBox9_1_color
+            // 
+            this.listBox9_1_color.FormattingEnabled = true;
+            this.listBox9_1_color.Items.AddRange(new object[] {
+            "Красный;",
+            "Оранжевый;",
+            "Желтый;",
+            "Зеленый;",
+            "Голубой;",
+            "Синий;",
+            "Фиолетовый;"});
+            this.listBox9_1_color.Location = new System.Drawing.Point(837, 38);
+            this.listBox9_1_color.Name = "listBox9_1_color";
+            this.listBox9_1_color.Size = new System.Drawing.Size(75, 69);
+            this.listBox9_1_color.TabIndex = 18;
+            this.listBox9_1_color.SelectedIndexChanged += new System.EventHandler(this.listBox9_1_color_SelectedIndexChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(915, 22);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(193, 13);
+            this.label3.TabIndex = 19;
+            this.label3.Text = "Координата источника света(x, y, z): ";
+            // 
+            // textBox9_1_X
+            // 
+            this.textBox9_1_X.Location = new System.Drawing.Point(918, 54);
+            this.textBox9_1_X.Name = "textBox9_1_X";
+            this.textBox9_1_X.Size = new System.Drawing.Size(23, 20);
+            this.textBox9_1_X.TabIndex = 20;
+            this.textBox9_1_X.Text = "0";
+            // 
+            // textBox9_1_Y
+            // 
+            this.textBox9_1_Y.Location = new System.Drawing.Point(947, 54);
+            this.textBox9_1_Y.Name = "textBox9_1_Y";
+            this.textBox9_1_Y.Size = new System.Drawing.Size(23, 20);
+            this.textBox9_1_Y.TabIndex = 21;
+            this.textBox9_1_Y.Text = "0";
+            // 
+            // textBox9_1_Z
+            // 
+            this.textBox9_1_Z.Location = new System.Drawing.Point(976, 54);
+            this.textBox9_1_Z.Name = "textBox9_1_Z";
+            this.textBox9_1_Z.Size = new System.Drawing.Size(23, 20);
+            this.textBox9_1_Z.TabIndex = 22;
+            this.textBox9_1_Z.Text = "0";
+            // 
+            // checkBox9_1
+            // 
+            this.checkBox9_1.AutoSize = true;
+            this.checkBox9_1.Location = new System.Drawing.Point(927, 90);
+            this.checkBox9_1.Name = "checkBox9_1";
+            this.checkBox9_1.Size = new System.Drawing.Size(49, 17);
+            this.checkBox9_1.TabIndex = 23;
+            this.checkBox9_1.Text = "Гуро";
+            this.checkBox9_1.UseVisualStyleBackColor = true;
+            this.checkBox9_1.CheckedChanged += new System.EventHandler(this.checkBox9_1_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1238, 514);
+            this.Controls.Add(this.checkBox9_1);
+            this.Controls.Add(this.textBox9_1_Z);
+            this.Controls.Add(this.textBox9_1_Y);
+            this.Controls.Add(this.textBox9_1_X);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.listBox9_1_color);
             this.Controls.Add(this.lab9Task3Button);
             this.Controls.Add(this.lab9Task2Button);
-            this.Controls.Add(this.lab9Task1Button);
             this.Controls.Add(this.checkBoxLab8task2);
             this.Controls.Add(this.lab8Task3Button);
             this.Controls.Add(this.lab8Task1Button);
@@ -260,9 +322,14 @@
         private System.Windows.Forms.Button lab8Task1Button;
         private System.Windows.Forms.Button lab8Task3Button;
         private System.Windows.Forms.CheckBox checkBoxLab8task2;
-        private System.Windows.Forms.Button lab9Task1Button;
         private System.Windows.Forms.Button lab9Task2Button;
         private System.Windows.Forms.Button lab9Task3Button;
+        private System.Windows.Forms.ListBox listBox9_1_color;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox9_1_X;
+        private System.Windows.Forms.TextBox textBox9_1_Y;
+        private System.Windows.Forms.TextBox textBox9_1_Z;
+        private System.Windows.Forms.CheckBox checkBox9_1;
     }
 }
 

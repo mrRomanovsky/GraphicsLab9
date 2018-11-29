@@ -79,5 +79,51 @@ namespace GraphicsLab6
         {
             return new Point3D(X, Y, Z);
         }
+
+        public static Point3D operator + (Point3D point1, Point3D point2)
+        {
+            return new Point3D(point1.X + point2.X, point1.Y + point2.Y, point1.Z + point2.Z);
+        }
+
+        public static Point3D operator -(Point3D point1, Point3D point2)
+        {
+            return new Point3D(point1.X - point2.X, point1.Y - point2.Y, point1.Z - point2.Z);
+        }
+
+        public static Point3D operator / (Point3D point1, double divisor)
+        {
+            return new Point3D(point1.X / divisor, point1.Y / divisor, point1.Z / divisor);
+        }
+
+        internal static Point3D TransformCoordinate(Point3D coordinates, double[,] transMat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public double Magnitude()
+        {
+            return Math.Sqrt(X * X + Y * Y + Z * Z);
+        }
+
+        internal void Normalize()
+        {
+            var lenght = Magnitude();
+            if (lenght != 0)
+            {
+                X /= lenght;
+                Y /= lenght;
+                Z /= lenght;
+            }
+        }
+
+        public static double Dot(Point3D point1, Point3D point2)
+        {
+            var div = ((Math.Sqrt(point1.X * point1.X + point1.Y * point1.Y + point1.Z * point1.Z) * Math.Sqrt(point2.X * point2.X + point2.Y * point2.Y + point2.Z * point2.Z)));
+            double angle = Math.Acos((point1.X * point2.X + point1.Y * point2.Y + point1.Z * point2.Z));
+            if (div != 0)
+                angle /= div;
+            var cos = Math.Cos(angle);
+            return cos * point1.Magnitude() * point2.Magnitude();
+        }
     }
 }

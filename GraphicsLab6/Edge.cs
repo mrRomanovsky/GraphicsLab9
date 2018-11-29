@@ -12,6 +12,7 @@ namespace GraphicsLab6
         //private int countVertex;
         public List<Point3D> Vertexes;
         public double A, B, C, D;
+        public int Number;
         public Edge()
         {
             Vertexes = new List<Point3D>();
@@ -19,6 +20,13 @@ namespace GraphicsLab6
 
         public Edge(List<Point3D> points)
         {
+            Vertexes = points;
+            //countVertex = points.Count;
+        }
+
+        public Edge(int num, List<Point3D> points)
+        {
+            Number = num;
             Vertexes = points;
             //countVertex = points.Count;
         }
